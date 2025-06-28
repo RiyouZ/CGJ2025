@@ -47,6 +47,9 @@ TagManager:
   - name: Interactable
     uniqueID: 1489131947
     locked: 0
+  - name: Hover
+    uniqueID: 4105067091
+    locked: 0
   - name: HudUI
     uniqueID: 1118307787
     locked: 0
