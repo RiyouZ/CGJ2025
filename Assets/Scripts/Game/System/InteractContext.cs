@@ -7,6 +7,7 @@ namespace CGJ2025.System.Interact
     public class InteractContext
     {
         public Vector2 mousePosition;
+        public float dragTime;
     }
 
 

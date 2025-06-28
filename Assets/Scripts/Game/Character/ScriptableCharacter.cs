@@ -9,6 +9,7 @@ namespace CGJ2025.Character
 	public class ScriptableCharacter : ScriptableObject
 	{
 		public SkeletonDataAsset skeletonData;
+		public ScriptableDragCondition dragCondition;
 	}
 
 

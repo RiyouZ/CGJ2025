@@ -358,7 +358,7 @@ namespace RuGameFramework.AnimeStateMachine
 			_layerToTrack[layer] = _skeleton.AnimationState.SetAnimation((int)layer, animeName, isLoop);
 		}
 
-		public void PlayTrackAnimation (string animeName)
+		public void PlayTrackAnimation (string animeName, float mixDuration = 0)
 		{
 			var state = GetState(animeName);
 			if (state == null)
@@ -366,13 +366,16 @@ namespace RuGameFramework.AnimeStateMachine
 				return;
 			}
 
-			// 基层不可以直接播放
-			if (state.Layer == SkeletonLayer.Base)
-			{
-				return;
-			}
+			// // 基层不可以直接播放
+			// if (state.Layer == SkeletonLayer.Base)
+			// {
+			// 	return;
+			// }
 
 			_layerToTrack[state.Layer] = _skeleton.AnimationState.SetAnimation((int)state.Layer, state.AnimeName, state.IsLoop);
+			_layerToTrack[state.Layer].MixDuration = mixDuration;
+			_skeleton.Update(0);
+			_skeleton.LateUpdate();
 		}
 
 	}
