@@ -25,9 +25,9 @@ MonoBehaviour:
   textureSettingsReference: Assets/Spine/Editor/spine-unity/Editor/ImporterPresets/PMATexturePreset.preset
   fixPrefabOverrideViaMeshFilter: 0
   removePrefabPreviewMeshes: 0
-  blendModeMaterialMultiply: {fileID: 0}
+  blendModeMaterialMultiply: {fileID: 2100000, guid: 53bf0ab317d032d418cf1252d68f51df, type: 2}
   blendModeMaterialScreen: {fileID: 0}
-  blendModeMaterialAdditive: {fileID: 0}
+  blendModeMaterialAdditive: {fileID: 2100000, guid: 4deba332d47209e4780b3c5fcf0e3745, type: 2}
   atlasTxtImportWarning: 1
   textureImporterWarning: 1
   componentMaterialWarning: 1

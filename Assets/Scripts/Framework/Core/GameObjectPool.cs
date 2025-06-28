@@ -33,7 +33,6 @@ namespace RuGameFramework.Core
 
 		private AutoIdGenerator _autoIdGenerator;
 
-		// TODO ËõÈÝÊ±ºòµÄËø
 		private bool _shrinkLock;
 		private bool _isPreload;
 		public bool IsPreload => _isPreload;
@@ -41,7 +40,6 @@ namespace RuGameFramework.Core
 		private IRuTimer _checkTimer;
 		private float _timeSimple;
 
-		// ¼ÓÔØ¾ä±ú
 		private static Dictionary<int, Coroutine> _asyncLoadHandleDic;
 
 		private bool _isNotAssetLoad;
@@ -107,7 +105,6 @@ namespace RuGameFramework.Core
 			_timeSimple = timeSimple;
 			_config.timeKeeper = config.timeKeeper;
 
-			// ËõÈÝ¼ÆÊ±
 			_checkTimer = _config.timeKeeper.SetInterval(Update, _timeSimple, 0);
 
 		}
@@ -146,7 +143,6 @@ namespace RuGameFramework.Core
 
 					_count++;
 
-					// Ô¤¼ÓÔØÍê±Ï
 					if (_count == _capacity)
 					{
 						_isPreload = true;
@@ -163,7 +159,6 @@ namespace RuGameFramework.Core
 			_shrinkTime = updateShrinkTime;
 			_timeSimple = timeSimple;
 
-			// ËõÈÝ¼ÆÊ±
 			_checkTimer = _config.timeKeeper.SetInterval(Update, _timeSimple, 0);
 		}
 
@@ -269,7 +264,7 @@ namespace RuGameFramework.Core
 			return obj;
 		}
 
-		// 2±¶ËõÈÝ
+		// 2å€ç¼©å®¹
 		public void Shrink ()
 		{
 			if (!IsPreload)
@@ -290,7 +285,6 @@ namespace RuGameFramework.Core
 			int shrinkIndex = _count / MULTI_EXPANSION;
 			for (int i = _freeList.Count - 1; i >= shrinkIndex; i--)
 			{
-				//  ¼ÆÊýÏú»Ù
 				_config.assetsProvider.Destroy(_freeList[i]);
 				shrinkCount++;
 			}
@@ -300,7 +294,6 @@ namespace RuGameFramework.Core
 			_shrinkLock = false;
 		}
 
-		// ¸ù¾ÝPrefab´´½¨ ²»¼ÆÊý ²»¾­¹ýAssetsManager
 		private GameObject CreateObjNotCounter (int autoId, GameObject prefab)
 		{
 			var obj = GameObject.Instantiate(prefab);
@@ -334,7 +327,6 @@ namespace RuGameFramework.Core
 				_asyncLoadHandleDic[autoId] = null;
 			}
 
-			//  ¼ÆÊýÊµÀý»¯
 			_asyncLoadHandleDic[autoId] = _config.assetsProvider.AsyncInstantiate(_objPath, (gameObject) =>
 			{
 				if (gameObject == null)

@@ -11,6 +11,7 @@ namespace RuGameFramework.Input
 		private MouseButtonState _leftState;
 		private MouseButtonState _rightState;
 		public Vector3 worldPosistion = Vector3.zero;
+		public Collider2D collider;
 
 		public MouseButtonState LeftState
 		{

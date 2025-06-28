@@ -6,11 +6,8 @@ namespace RuGameFramework.SortingLayer
 {
 	public class GameSortLayerCom : MonoBehaviour
 	{
-		public ComponentType ComType => ComponentType.SortingLayer;
-
-		public GameObject BindObj => this.gameObject;
-
-		private string _sortLayerName = string.Empty;
+		public bool isStatic;
+		[SerializeField ]private string _sortLayerName = string.Empty;
 		public string SortLayerName
 		{
 			get
@@ -33,16 +30,22 @@ namespace RuGameFramework.SortingLayer
 			}
 		}
 
-		private SpriteRenderer _spriteRenderer;
-		private MeshRenderer _meshRenderer;
+		[SerializeField] private SpriteRenderer _spriteRenderer;
+		[SerializeField] private MeshRenderer _meshRenderer;
 
 		void Start ()
 		{
 			InitComponent();
+			UpdateSpriteSortLayer();
+			UpdateMeshRendererSortLayer();
 		}
 
 		void LateUpdate ()
 		{
+			if(isStatic)
+			{
+				return;
+			}
 			UpdateSpriteSortLayer();
 			UpdateMeshRendererSortLayer();
 		}
@@ -64,7 +67,6 @@ namespace RuGameFramework.SortingLayer
 			{
 				return;
 			}
-
 			int sortOrder = SortLayerUtil.YAxisConverSortOrderValue(transform.position.y);
 			_meshRenderer.sortingOrder = sortOrder;
 		}
@@ -84,17 +86,6 @@ namespace RuGameFramework.SortingLayer
 				_spriteRenderer.sortingLayerName = SortLayerName;
 				return;
 			}
-		}
-
-		public void Dispose ()
-		{
-			
-		}
-
-		// 创建时候的初始化
-		public void Init ()
-		{
-			
 		}
 	}
 

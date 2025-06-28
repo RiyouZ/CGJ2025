@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using UnityEngine;
 
 namespace RuGameFramework.Input
@@ -36,6 +37,19 @@ namespace RuGameFramework.Input
 			}
 		}
 
+		public GameObject CurrentObject {
+			get
+			{
+				if (_mouseData.collider == null)
+				{
+					return null;
+				}
+
+				return _mouseData.collider.gameObject;
+			}
+			
+		}
+
 		// Start is called before the first frame update
 		void Start ()
 		{
@@ -58,7 +72,13 @@ namespace RuGameFramework.Input
 			_mouseData.worldPosistion.z = -_mainCamera.transform.position.z;
 			_mouseData.worldPosistion = _mainCamera.ScreenToWorldPoint(_mousePosition);
 
-			// 更新鼠标指针物体
+			_mouseData.collider = Physics2D.OverlapPoint(_mouseData.worldPosistion);
+			if(_mouseData.collider != null)
+			{
+				Debug.Log($"[MouseManager.Hit] {_mouseData.collider.name} Hit");
+			}
+
+			
 			if (_cursorObj != null)
 			{
 				_cursorObj.transform.position = _mouseData.worldPosistion;

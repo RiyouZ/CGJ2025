@@ -9,10 +9,9 @@ namespace RuGameFramework.Util
 		public static int ConverRatio = 100;
 		public static int YAxisConverSortOrderValue (float y)
 		{
-			return (int) (y * ConverRatio);
+			return - (int) (y * ConverRatio);
 		}
 
-		// ¸ù¾ÝtagÅÅÐò
 		public static void SortOrderGameObjectForTag (string tag)
 		{
 			var objList = GameObject.FindGameObjectsWithTag(tag);
