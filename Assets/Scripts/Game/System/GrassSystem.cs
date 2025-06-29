@@ -6,6 +6,9 @@ using RuGameFramework.Input;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
+using DG.Tweening;
+using Unity.VisualScripting;
+
 
 namespace CGJ2025.System.Grass
 {
@@ -36,6 +39,9 @@ namespace CGJ2025.System.Grass
 
         public Material sharedMaterial;
 
+        [field:SerializeField]
+        public bool HasGenerated { get; private set; }
+
         [Header("Repel")]
         public bool isRepelling = false;
         private float repelLerpSpeed = 5f;
@@ -60,14 +66,27 @@ namespace CGJ2025.System.Grass
         [SerializeField]
         private float clickingInfluence = 1f;
 
+        [Header("Shake")]
+        [SerializeField]
+        private float shakeStrength = 0.5f;
+        [SerializeField]
+        private float shakeDuration = 0.5f;
+        [SerializeField]
+        private float shakeInterval = 2f;
+        [SerializeField]
+        [ReadOnly]
+        private float shakeAngle = 0f;
+
+
          // 存储每个草当前角度状态
         private Dictionary<Renderer, float> currentAngles = new Dictionary<Renderer, float>();
         // MaterialPropertyBlock 缓存
         private Dictionary<Renderer, MaterialPropertyBlock> blockCache = new Dictionary<Renderer, MaterialPropertyBlock>();
 
-        void Start()
-        {
 
+        public bool GenerateGrass()
+        {
+            if (HasGenerated) return false;
             // Generate Grass
             float totalWeight = 0f;
             foreach (float weight in plantRandomWeightList)
@@ -114,28 +133,39 @@ namespace CGJ2025.System.Grass
                     rend.sharedMaterial = sharedMaterial;
                 }
             }
+            HasGenerated = true;
+            return true;
         }
-
-        int GetWeightedRandomIndex(List<float> weights)
+        private IEnumerator shakeInst = null;
+        public bool StartShaking()
         {
-            float totalWeight = 0f;
-            foreach (float weight in weights)
-                totalWeight += weight;
-
-            float randomValue = UnityEngine.Random.Range(0, totalWeight);
-            float cumulative = 0f;
-
-            for (int i = 0; i < weights.Count; i++)
-            {
-                cumulative += weights[i];
-                if (randomValue < cumulative)
-                    return i;
-            }
-
-            return weights.Count - 1;
+            if (HasGenerated == false) return false;
+            if (shakeInst != null) StopCoroutine(shakeInst);
+            shakeInst = ShakeCoroutine() as IEnumerator;
+            StartCoroutine(shakeInst);
+            return true;
         }
+        public void StopShaking() => StopCoroutine(shakeInst);
 
-        public void TryStartRepel() {
+        IEnumerator ShakeCoroutine()
+        {
+            while (true)
+            {
+                DOVirtual.Float(0, 1, shakeDuration, t =>
+                {
+                    float randomOffset = UnityEngine.Random.Range(-shakeStrength, shakeStrength);
+                    float shakenValue =  randomOffset;
+                    // Use it where needed
+                    shakeAngle = shakenValue;
+                });
+                yield return new WaitForSeconds(shakeDuration);
+                shakeAngle = 0;
+                yield return new WaitForSeconds(shakeInterval);
+            }
+        }
+        
+        public void TryStartRepel()
+        {
             if (isRepelling) return;
 
             Debug.Log("Start Repel");
@@ -158,6 +188,15 @@ namespace CGJ2025.System.Grass
 
         void Update()
         {
+            if(Input.GetKeyDown(KeyCode.S)){
+                StartShaking();
+            }
+            if(Input.GetKeyDown(KeyCode.D)){
+                StopShaking();
+            }
+                        if(Input.GetKeyDown(KeyCode.A)){
+                GenerateGrass();
+            }
             foreach (var renderer in grassRenderers)
             {
                 if (renderer == null) continue;
@@ -173,7 +212,7 @@ namespace CGJ2025.System.Grass
                 float dist = toMouse.magnitude;
                 float influence = Mathf.Exp(-dist * repelInfluence);
                 float side = Mathf.Sign(toMouse.x);
-                float targetAngle = side * influence * repelMaxAngle;
+                float targetAngle = side * influence * repelMaxAngle + shakeAngle;
 
                 // 插值当前角度
                 float angle = Mathf.Lerp(currentAngles[renderer], targetAngle, Time.deltaTime * repelLerpSpeed);

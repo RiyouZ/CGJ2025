@@ -75,6 +75,7 @@ MonoBehaviour:
   plantsCount: 80
   grassRenderers: []
   sharedMaterial: {fileID: 2100000, guid: bcc9038880a52c741adcd761cba4bfbd, type: 2}
+  <HasGenerated>k__BackingField: 0
   isRepelling: 0
   normalLerpSpeed: 5
   normalMaxAngle: 0.6
@@ -82,6 +83,10 @@ MonoBehaviour:
   clickingLerpSpeed: 5
   ClickingMaxAngle: 1.2
   clickingInfluence: 0.1
+  shakeStrength: 0.5
+  shakeDuration: 0.3
+  shakeInterval: 2
+  shakeAngle: 0
 --- !u!1 &7027319625468159724
 GameObject:
   m_ObjectHideFlags: 0
