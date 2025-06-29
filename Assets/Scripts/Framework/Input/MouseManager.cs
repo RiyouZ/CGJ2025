@@ -10,7 +10,7 @@ namespace RuGameFramework.Input
 
 		private Vector3 _mousePosition = Vector2.zero;
 
-		private MouseData _mouseData = new MouseData();
+		public MouseData _mouseData = new MouseData();
 
 		private GameObject _cursorObj;
 		public GameObject Cursor

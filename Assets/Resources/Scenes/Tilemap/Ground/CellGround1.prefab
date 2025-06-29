@@ -75,9 +75,13 @@ MonoBehaviour:
   plantsCount: 80
   grassRenderers: []
   sharedMaterial: {fileID: 2100000, guid: bcc9038880a52c741adcd761cba4bfbd, type: 2}
-  repelLerpSpeed: 5
-  repelMaxAngle: 0.5
-  repelInfluence: 2
+  isRepelling: 0
+  normalLerpSpeed: 5
+  normalMaxAngle: 0.6
+  normalInfluence: 0.5
+  clickingLerpSpeed: 5
+  ClickingMaxAngle: 1.2
+  clickingInfluence: 0.1
 --- !u!1 &7027319625468159724
 GameObject:
   m_ObjectHideFlags: 0
@@ -128,6 +132,7 @@ MonoBehaviour:
   gridIndex: {x: 0, y: 0}
   grassSystem: {fileID: 4539435259732566563}
   plantList: []
+  mouseManager: {fileID: 0}
 --- !u!212 &408102871998999707
 SpriteRenderer:
   m_ObjectHideFlags: 0

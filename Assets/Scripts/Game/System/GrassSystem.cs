@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using RuGameFramework;
 using RuGameFramework.Input;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 
 namespace CGJ2025.System.Grass
@@ -14,7 +15,8 @@ namespace CGJ2025.System.Grass
         /// <summary>
         /// 回调
         /// </summary>
-        public event Action OnGrassRepel;
+        public event Action OnStartRepel;
+        public event Action OnEndRepel;
 
         public MouseManager _mouseManager;
         public List<Sprite> plantSpriteList;
@@ -34,9 +36,29 @@ namespace CGJ2025.System.Grass
 
         public Material sharedMaterial;
 
-        public float repelLerpSpeed = 5f;
-        public float repelMaxAngle = 0.5f;
-        public float repelInfluence = 3f;
+        [Header("Repel")]
+        public bool isRepelling = false;
+        private float repelLerpSpeed = 5f;
+        private float repelMaxAngle = 0.5f;
+        private float repelInfluence = 3f;
+
+        [Header("Normal Repel Parameters")]
+        [SerializeField]
+        private float normalLerpSpeed = 5f;
+
+        [SerializeField]
+        private float normalMaxAngle = 0.5f;
+        [SerializeField]
+        private float normalInfluence = 3f;
+
+        [Header("Clicking Repel Parameters")]
+        [SerializeField]
+        private float clickingLerpSpeed = 5f;
+        [SerializeField]
+        private float ClickingMaxAngle = 10f;
+
+        [SerializeField]
+        private float clickingInfluence = 1f;
 
          // 存储每个草当前角度状态
         private Dictionary<Renderer, float> currentAngles = new Dictionary<Renderer, float>();
@@ -45,12 +67,6 @@ namespace CGJ2025.System.Grass
 
         void Start()
         {
-            if(App.Instance != null)
-                _mouseManager = App.Instance.MouseManager;
-            if (_mouseManager == null)
-            {
-                _mouseManager = FindObjectOfType<MouseManager>();
-            }
 
             // Generate Grass
             float totalWeight = 0f;
@@ -119,9 +135,29 @@ namespace CGJ2025.System.Grass
             return weights.Count - 1;
         }
 
+        public void TryStartRepel() {
+            if (isRepelling) return;
+
+            Debug.Log("Start Repel");
+            isRepelling = true;
+            repelLerpSpeed = clickingLerpSpeed;
+            repelMaxAngle = ClickingMaxAngle;
+            repelInfluence = clickingInfluence;
+            OnStartRepel?.Invoke();
+        }
+        public void TryEndRepel() {
+            if (!isRepelling) return;
+
+            Debug.Log("End Repel");
+            isRepelling = false;
+            repelLerpSpeed = normalLerpSpeed;
+            repelMaxAngle = normalMaxAngle;
+            repelInfluence = normalInfluence;
+            OnEndRepel?.Invoke();
+        }
+
         void Update()
         {
-            // Mouse Interaction
             foreach (var renderer in grassRenderers)
             {
                 if (renderer == null) continue;
