@@ -5,6 +5,7 @@ using CGJ2025.System.Interact;
 using RuGameFramework;
 using RuGameFramework.AnimeStateMachine;
 using RuGameFramework.Core;
+using RuGameFramework.Input;
 using UnityEngine;
 
 namespace CGJ2025.Character
@@ -30,7 +31,16 @@ namespace CGJ2025.Character
 		[SerializeField] private bool _isWrong;
 
 		private Timer _timer;
-		private Cell dropCell;
+
+		[SerializeField] private MouseManager _mouseManager;
+
+        protected override void OnStart()
+        {
+            if(_mouseManager == null)
+			{
+				_mouseManager = App.Instance.MouseManager;
+			}
+        }
 
         protected override void InitializeFSM()
         {
@@ -93,6 +103,7 @@ namespace CGJ2025.Character
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Find", false)
 			.OnAnimationStart((_, _) => _canCatch = true)
+			.OnAnimationComplate((_, _) => Destroy(this.gameObject))
 			.AddAnoTransition("Snatch_in", ()=>
 			{
 				return state == State.Catch && !_isEscape;
@@ -100,16 +111,18 @@ namespace CGJ2025.Character
 			.AddAnimationEvent("Cantselect", (_, _) => _canCatch = false);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch_in")
-			.AddAnoTransition("Snatch", () => true, true);
+			.AddAnoTransition("Snatch", () => true, true)
+			.AddAnoTransition("Drop", () => state == State.DropSuccess)
+			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch", true)
 			.AddAnoTransition("Drop", () => state == State.DropSuccess)
 			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Drop")
-			.OnAnimationEnd((_, _) =>
+			.OnAnimationComplate((_, _) =>
 			{
-				Destroy();
+				Destroy(this.gameObject);
 			});
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong_in")
@@ -126,11 +139,6 @@ namespace CGJ2025.Character
 			skeletonMchine.StartMachine();
 		}
 
-		private void Destroy()
-		{
-			Destroy(this.gameObject);
-		}	
-
 		protected override void OnUpdate()
 		{
 			if(Input.GetMouseButtonDown(1))
@@ -140,7 +148,7 @@ namespace CGJ2025.Character
 
 			if(_isWrong)
 			{
-				FollowDragPoint(App.Instance.MouseManager.WorldPosition);
+				FollowDragPoint(_mouseManager.WorldPosition);
 			}
 		}
 
@@ -151,6 +159,8 @@ namespace CGJ2025.Character
 			{
 				state = State.Catch;
 			}
+
+			gameSortLayer.SortLayerName = LAYER_HOVER;
 		}
 
 		public override void OnDragEnd(InteractContext context)
@@ -172,17 +182,6 @@ namespace CGJ2025.Character
 		protected override bool DragCondition(InteractContext context) 
 		{
 			return _canCatch == true;
-		}
-
-
-		void OnTriggerEnter2D(Collider2D other)
-		{
-			dropCell = other.GetComponent<Cell>();
-		}
-
-		void OnTriggerExit2D(Collider2D other)
-		{
-			dropCell = null;
 		}
 
 		public void DropSuccess(Cell dropCell)

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using CGJ2025.SceneCell;
 using CGJ2025.System.Interact;
 using RuGameFramework;
 using RuGameFramework.AnimeStateMachine;
@@ -34,6 +35,8 @@ namespace CGJ2025.Character
 		public Bone dragBone;
 		
 		public GameSortLayerCom gameSortLayer;
+
+		protected Cell dropCell;
 
 		private void Start() 
 		{
@@ -77,7 +80,10 @@ namespace CGJ2025.Character
 				gameSortLayer = GetComponentInChildren<GameSortLayerCom>();
 				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 			}
+			OnStart();
 		}
+
+		protected virtual void OnStart() {}
 
 		void Update() {
 			OnUpdate();
@@ -86,6 +92,16 @@ namespace CGJ2025.Character
 		}
 
 		protected virtual void OnUpdate(){}
+
+		void OnTriggerEnter2D(Collider2D other)
+		{
+			dropCell = other.GetComponent<Cell>();
+		}
+
+		void OnTriggerExit2D(Collider2D other)
+		{
+			dropCell = null;
+		}
 
 		void LateUpdate() {
 			UpdateCollider(skeletonAnimation);
@@ -113,16 +129,10 @@ namespace CGJ2025.Character
 
 		public virtual void OnDragBegin(InteractContext context)
 		{
-			// if(!characterData.dragCondition.CanDrag(context))
-			// {
-			// 	return;
-			// }
 			if(!DragCondition(context))
 			{
 				return;
 			}
-			
-			gameSortLayer.SortLayerName = LAYER_HOVER;
 		}
 
 		protected virtual bool DragCondition(InteractContext context) {return true;}
@@ -130,7 +140,6 @@ namespace CGJ2025.Character
 		public virtual void OnDragEnd(InteractContext context)
 		{
 			gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
-			Debug.Log("OnDragEnd");
 		}
 
 		public virtual void OnDragUpdate(InteractContext context)
@@ -141,7 +150,6 @@ namespace CGJ2025.Character
 			}
 			
 			FollowDragPoint(context.mousePosition);
-			
 		}
 
 		public void FollowDragPoint(Vector2 mousePosition)

@@ -15,6 +15,8 @@ namespace RuGameFramework.StateMachine
 		private bool _isRunning;
 		private float _updateSimple;
 
+		private bool _isInit;
+
 		public RuFSM (int capacity)
 		{
 			_stateDic = new Dictionary<T, IRuState<T>>(capacity);
@@ -141,9 +143,10 @@ namespace RuGameFramework.StateMachine
 			_stateDic.Remove(stateIns.Index);
 		}
 
-		// ???¨®???
+		// ???ï¿½ï¿½???
 		public void SetDefault (T stateIndex, float timeSimple)
 		{
+			_isInit = true;
 			_updateSimple = timeSimple;
 			if (!_stateDic.TryGetValue(stateIndex, out IRuState<T> state))
 			{
@@ -155,6 +158,8 @@ namespace RuGameFramework.StateMachine
 		// ????????
 		public void UpdateMachine ()
 		{
+			if(!_isInit) return;
+
 			if (_isRunning)
 			{
 				Update(_updateSimple);
@@ -180,6 +185,11 @@ namespace RuGameFramework.StateMachine
 
 		private void Update (float deltaTime)
 		{
+			if(_currentState.StateTransitions == null)
+			{
+				return;
+			}
+
 			foreach (var cond in _currentState.StateTransitions)
 			{
 				var canTrans = cond.TranstionCondition?.Invoke();

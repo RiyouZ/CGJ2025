@@ -372,7 +372,22 @@ namespace RuGameFramework.AnimeStateMachine
 			// 	return;
 			// }
 
+			if(mixDuration == 0)
+			{
+				_skeleton.Skeleton.SetToSetupPose();
+				_skeleton.AnimationState.ClearTrack((int)state.Layer);
+				_layerToTrack[state.Layer] = _skeleton.AnimationState.SetAnimation((int)state.Layer, state.AnimeName, state.IsLoop);
+				_layerToTrack[state.Layer].MixDuration = mixDuration;
+				_skeleton.AnimationState.Apply(_skeleton.Skeleton);
+				_skeleton.Update(0);
+				_skeleton.LateUpdate();
+				return;
+			}
+
 			_layerToTrack[state.Layer] = _skeleton.AnimationState.SetAnimation((int)state.Layer, state.AnimeName, state.IsLoop);
+			_layerToTrack[state.Layer].MixDuration = mixDuration;
+
+			
 			_layerToTrack[state.Layer].MixDuration = mixDuration;
 			_skeleton.Update(0);
 			_skeleton.LateUpdate();

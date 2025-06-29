@@ -120,7 +120,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34663d3173d58e341a9340a1a857a14c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  timerManager: {fileID: 8175512509803062453}
+  timerManager: {fileID: 0}
   characterData: {fileID: 11400000, guid: 5f1195970bc95664e8fe16eabf09f4a5, type: 2}
   skeletonAnimation: {fileID: 0}
   spineRenderer: {fileID: 0}
@@ -131,6 +131,8 @@ MonoBehaviour:
   _canCatch: 0
   _canDrop: 0
   _isEscape: 0
+  _isWrong: 0
+  _mouseManager: {fileID: 0}
 --- !u!114 &8175512509803062453
 MonoBehaviour:
   m_ObjectHideFlags: 0

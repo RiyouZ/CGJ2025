@@ -59,6 +59,8 @@ namespace CGJ2025.System.Interact
                 if(currentInteractObj != null)
                 {
                     _context.mousePosition = mouseManager.WorldPosition;
+                    _dragTime += Time.deltaTime;
+                    _context.dragTime = _dragTime;
                     currentInteractObj.OnDragEnd(_context);
                     _dragTime = 0;
                     currentInteractObj = null;
