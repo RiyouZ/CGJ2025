@@ -188,15 +188,6 @@ namespace CGJ2025.System.Grass
 
         void Update()
         {
-            if(Input.GetKeyDown(KeyCode.S)){
-                StartShaking();
-            }
-            if(Input.GetKeyDown(KeyCode.D)){
-                StopShaking();
-            }
-                        if(Input.GetKeyDown(KeyCode.A)){
-                GenerateGrass();
-            }
             foreach (var renderer in grassRenderers)
             {
                 if (renderer == null) continue;
