@@ -54,10 +54,7 @@ namespace CGJ2025.System.Grid
 
 			_width = tilemap.cellBounds.size.x;
 			_height = tilemap.cellBounds.size.y;
-		}
 
-		void Start() 
-		{
 			groundObj[0, 0].cellData.cellType = CellType.Grass;
 			groundObj[2, 2].cellData.cellType = CellType.NotInteract;
 
@@ -65,6 +62,11 @@ namespace CGJ2025.System.Grid
 			groundObj[0, 0].CreateGrass();
 
 			audioSource = GetComponent<AudioSource>();
+		}
+
+		void Start() 
+		{
+			
 		}
 
 		public static int Index(int x, int y)
