@@ -13,9 +13,9 @@ using UnityEngine;
 
 namespace CGJ2025.Character
 {
-	public abstract class Character<T> : MonoBehaviour, IInteractable
+	public abstract class Character<T> : MonoBehaviour, IInteractable, ICharacter
 	{
-		public const string LAYER_INTERACTABLE = "Interactable";
+		public const string LAYER_INTERACTABLE = "Grass";
 		public const string LAYER_HOVER = "Hover";
 
 		private const string DRAG_POINT = "Dragpoint";
@@ -27,6 +27,14 @@ namespace CGJ2025.Character
 		public SkeletonStateMachine skeletonMchine;
 		public Renderer spineRenderer;
 
+		public AudioSource onshotAudio;
+		public AudioSource audioSource;
+		public AudioSource grassAudio;
+
+		public AudioClip audioRepel;
+		public AudioClip audioRepel1;
+		public AudioClip audioGen;
+
 		public RuFSM<T> fSM;
 
 		public BoxCollider2D collider;
@@ -37,6 +45,11 @@ namespace CGJ2025.Character
 		public GameSortLayerCom gameSortLayer;
 
 		protected Cell dropCell;
+	
+		public GameObject CharacteObject
+        {
+            get => this.gameObject;
+        }
 
 		private void Start() 
 		{
@@ -80,7 +93,30 @@ namespace CGJ2025.Character
 				gameSortLayer = GetComponentInChildren<GameSortLayerCom>();
 				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 			}
+
+			if(audioSource == null)
+			{
+				audioSource = GetComponent<AudioSource>();
+			}
 			OnStart();
+		}
+
+		public void PlayAudio(AudioClip clip)
+		{
+			audioSource.clip = clip;
+			audioSource.Play();
+		}
+
+		public void PlayOneShot(AudioClip clip)
+		{
+			onshotAudio.clip = clip;
+			onshotAudio.Play();
+		}
+
+		public void PlayGrassAudio(AudioClip clip)
+		{
+			grassAudio.clip = clip;
+			grassAudio.Play();
 		}
 
 		protected virtual void OnStart() {}
@@ -125,7 +161,7 @@ namespace CGJ2025.Character
 		}
 
 		// 给Grid调用
-		public virtual void OnCellMouseDown() {}
+		public virtual void OnCellMouseDown(Cell cell) {}
 
 		public virtual void OnDragBegin(InteractContext context)
 		{
@@ -154,6 +190,10 @@ namespace CGJ2025.Character
 
 		public void FollowDragPoint(Vector2 mousePosition)
 		{
+			if(skeletonAnimation == null)
+			{
+				return;
+			}
 			Vector2 boneWorldPos = skeletonAnimation.transform.TransformPoint(new Vector2(dragBone.WorldX, dragBone.WorldY));
 			Vector3 offset = mousePosition - boneWorldPos;
 

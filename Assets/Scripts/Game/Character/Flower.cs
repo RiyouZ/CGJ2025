@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using CGJ2025.SceneCell;
+using CGJ2025.System.Grid;
 using CGJ2025.System.Interact;
 using RuGameFramework;
 using RuGameFramework.AnimeStateMachine;
@@ -26,10 +28,17 @@ namespace CGJ2025.Character
 		public State state = State.Start;
 
 		public float needCatchTime;
-		
-		private Timer catchTimer;
 
 		[SerializeField] private MouseManager _mouseManager;
+
+		public AudioClip audioFind;
+		public AudioClip audioFind2;
+		public AudioClip audioCatch;
+		public AudioClip audioDropSccess;
+		public AudioClip audioDropFail;
+
+		public AudioClip audioCatchSuccess;
+		public AudioClip audioCatchCharacter;
 
 		protected override void OnStart()
         {
@@ -50,6 +59,11 @@ namespace CGJ2025.Character
 		protected override void InitializeSkeleton()
 		{
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "In", false)
+			.OnAnimationStart((_, _) => 
+			{
+				state = State.Start;
+				PlayGrassAudio(audioGen);
+			})
 			.AddAnoTransition("Idle", ()=> true, true);
 
 			// 待机
@@ -58,6 +72,12 @@ namespace CGJ2025.Character
 
 			// 拾取开始
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Find", false)
+			.OnAnimationStart((_, _) => 
+			{
+				var random = UnityEngine.Random.Range(0, 2);
+				if (random == 0) PlayAudio(audioFind); 
+				else PlayAudio(audioFind2);
+			})
 			.AddAnoTransition("Snatch_in", () => state == State.CatchSuccess)
 			.AddAnoTransition("Find_cancel", () => state == State.CatchFail);
 
@@ -68,24 +88,72 @@ namespace CGJ2025.Character
 
 			// 拾取成功 挣扎
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch_in")
+			.OnAnimationStart((_, _) => {
+				PlayAudio(audioCatch);
+				Cursor.visible = false;
+				if(currentCell != null)
+				{
+					currentCell.RemoveCharacte();
+					currentCell = null;
+				}
+			})
 			.AddAnoTransition("Snatch", () => true, true)
 			.AddAnoTransition("Drop", () => state == State.DropSuccess, true)
 			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
 
 			// 挣扎中
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch", true)
+			.OnAnimationStart((_, _) => {
+				Cursor.visible = false;
+			})
 			.AddAnoTransition("Drop", () => state == State.DropSuccess)
 			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
 
 			// 成功释放
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Drop")
-			.OnAnimationComplate((_, _) => Destroy(this.gameObject));
+			.OnAnimationStart((_, _) => 
+			{
+				PlayAudio(audioDropSccess);
+				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
+			})
+			.OnAnimationEnd((_, _) => 
+			{
+				Cursor.visible = true;
+				if(dropCell != null)
+				{
+					dropCell.OnCharacterDroped((Cell)=>
+					{
+						GridSystem.GenerateTime -= GridSystem.GenerateTime * 0.2f;
+					});
+				}
+				Destroy(this.gameObject);
+			})
+			.OnAnimationComplate((_, _) => 
+			{
+				Cursor.visible = true;
+				if(dropCell != null)
+				{
+					dropCell.OnCharacterDroped((Cell)=>
+					{
+						GridSystem.GenerateTime -= GridSystem.GenerateTime * 0.2f;
+					});
+				}
+				Destroy(this.gameObject);
+			});
 
 			// 释放失败
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong_in")
+			.OnAnimationStart((_, _) => {
+				PlayAudio(audioDropFail);
+				Cursor.visible = false;
+			})
 			.AddAnoTransition("Wrong", () => true, true);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong", true)
+			.OnAnimationStart((_, _) => {
+				Cursor.visible = false;
+				gameSortLayer.SortLayerName = LAYER_HOVER;
+			})
 			.AddAnoTransition("Drop", () => dropCell != null && _isMouseHold)
 			.AddAnoTransition("Snatch_in", () => state == State.CatchSuccess);
 			
@@ -99,13 +167,21 @@ namespace CGJ2025.Character
 			_isMouseHold = true;
 			if(state == State.DropFail)
 			{
+				Cursor.visible = false;
 				state = State.CatchSuccess;
-				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
+				gameSortLayer.SortLayerName = LAYER_HOVER;
 				return;
 			}
 
 			state = State.Catching;
-			gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
+			PlayOneShot(audioCatchCharacter);
+			gameSortLayer.SortLayerName = LAYER_HOVER;
+		}
+
+		public Cell currentCell;
+		 public override void OnCellMouseDown(Cell cell)
+        {
+			currentCell = cell;
 		}
 
 		protected override bool DragCondition(InteractContext context) 
@@ -136,16 +212,15 @@ namespace CGJ2025.Character
 					state = State.CatchFail;
 					return;
 				}
-				else
-				{
-					return;
-				}
+				return;
 			}
 
+			PlayOneShot(audioCatchSuccess);
 			if(state == State.CatchSuccess)
 			{
 				state = dropCell == null ? State.DropFail : State.DropSuccess; 
 			}
+			gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 		}
 
         protected override void InitializeFSM()

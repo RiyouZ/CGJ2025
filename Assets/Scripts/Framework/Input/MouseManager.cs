@@ -72,13 +72,8 @@ namespace RuGameFramework.Input
 			_mouseData.worldPosistion.z = -_mainCamera.transform.position.z;
 			_mouseData.worldPosistion = _mainCamera.ScreenToWorldPoint(_mousePosition);
 
-			_mouseData.collider = Physics2D.OverlapPoint(_mouseData.worldPosistion);
-			if(_mouseData.collider != null)
-			{
-				Debug.Log($"[MouseManager.Hit] {_mouseData.collider.name} Hit");
-			}
+			_mouseData.collider = Physics2D.OverlapPoint(_mouseData.worldPosistion, 1 << 7);
 
-			
 			if (_cursorObj != null)
 			{
 				_cursorObj.transform.position = _mouseData.worldPosistion;

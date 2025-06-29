@@ -18,18 +18,22 @@ namespace CGJ2025.System.Interact
         public IInteractable currentInteractObj;
         private InteractContext _context;
 
+        public Collider2D CurrentObject;
         private float _dragTime;
+
+        private Camera _mainCamera;
 
         void Start()
         {
             _context = new InteractContext();
             _dragTime = 0;
+            _mainCamera = Camera.main;
         }
 
         
         void Update()
         {
-            
+			
         }
 
         public void Initialize(MouseManager mouseManager, TimerManager timerManager)
@@ -40,9 +44,12 @@ namespace CGJ2025.System.Interact
 
         public void DragUpdate()
         {
-            if(Input.GetMouseButtonDown(0) && mouseManager.CurrentObject != null)
+            var pos =  _mainCamera.ScreenToWorldPoint(Input.mousePosition);
+			CurrentObject = Physics2D.OverlapPoint(pos, 1 << 8);
+
+            if(Input.GetMouseButtonDown(0) && CurrentObject != null)
             {
-                currentInteractObj = mouseManager.CurrentObject.GetComponent<IInteractable>();
+                currentInteractObj = CurrentObject.GetComponent<IInteractable>();
                 if(currentInteractObj != null)
                 {
                     _context.mousePosition = mouseManager.WorldPosition;
@@ -51,8 +58,6 @@ namespace CGJ2025.System.Interact
                     _isDraging = true;
                 }
             }
-
-            
 
             if(_isDraging && Input.GetMouseButtonUp(0))
             {

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CGJ2025.SceneCell;
+using CGJ2025.System.Grid;
 using CGJ2025.System.Interact;
 using RuGameFramework;
 using RuGameFramework.AnimeStateMachine;
@@ -30,6 +31,14 @@ namespace CGJ2025.Character
 		[SerializeField] private bool _isEscape;
 		[SerializeField] private bool _isWrong;
 
+		public AudioClip audioFind;
+		public AudioClip audioFind2;
+		public AudioClip audioCatch;
+		public AudioClip audioDropSccess;
+		public AudioClip audioDropFail;
+
+		public AudioClip audioCatchSuccess;
+
 		private Timer _timer;
 
 		[SerializeField] private MouseManager _mouseManager;
@@ -47,7 +56,7 @@ namespace CGJ2025.Character
             fSM.RegisterState(State.Hide)
 				.OnEnter((fsmState)=>
 				{	
-
+					PlayGrassAudio(audioGen);
 				}).AddTransition(State.Find, () => 
 				{
 					return state == State.Find;
@@ -66,6 +75,11 @@ namespace CGJ2025.Character
 			fSM.RegisterState(State.Catch)
 				.OnEnter((fsmState)=>
 				{
+					if(currentCell != null)
+					{
+						currentCell.RemoveCharacte();
+						currentCell = null;
+					}
 					_isEscape = false;
 					_isWrong = false;
 					skeletonMchine.PlayTrackAnimation("Snatch_in");
@@ -102,8 +116,13 @@ namespace CGJ2025.Character
 			});
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Find", false)
-			.OnAnimationStart((_, _) => _canCatch = true)
-			.OnAnimationComplate((_, _) => Destroy(this.gameObject))
+			.OnAnimationStart((_, _) => {
+				var random = UnityEngine.Random.Range(0, 2);
+				if (random == 0) PlayAudio(audioFind); 
+				else PlayAudio(audioFind2);
+				_canCatch = true;
+			})
+			.OnAnimationComplate((_, _) => CharacterDestroy())
 			.AddAnoTransition("Snatch_in", ()=>
 			{
 				return state == State.Catch && !_isEscape;
@@ -111,41 +130,79 @@ namespace CGJ2025.Character
 			.AddAnimationEvent("Cantselect", (_, _) => _canCatch = false);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch_in")
+			.OnAnimationStart((_, _) => {
+				Cursor.visible = false;
+				PlayAudio(audioCatch);
+			})
+			.OnAnimationEnd((_, _) => {
+				// Cursor.visible = true;
+			})			
 			.AddAnoTransition("Snatch", () => true, true)
 			.AddAnoTransition("Drop", () => state == State.DropSuccess)
 			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch", true)
+			.OnAnimationStart((_, _) => {
+				Cursor.visible = false;
+			})
+			.OnAnimationEnd((_, _) => {
+				Cursor.visible = true;
+			})			
 			.AddAnoTransition("Drop", () => state == State.DropSuccess)
 			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Drop")
+			.OnAnimationStart((_, _) => 
+			{
+				PlayAudio(audioDropSccess);
+				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
+			})
+			.OnAnimationEnd((_, _) => 
+			{
+				CharacterDestroy();
+			})
 			.OnAnimationComplate((_, _) =>
 			{
-				Destroy(this.gameObject);
+				CharacterDestroy();
 			});
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong_in")
 			.OnAnimationStart((_, _) =>
 			{
+				PlayAudio(audioDropFail);
+				Cursor.visible = false;
 				_isWrong = true;
 				_canCatch = true;
 			})
 			.AddAnoTransition("Wrong", () => true);
 
-			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong", true);
+			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong", true)
+			.OnAnimationStart((_, _) => {
+				Cursor.visible = false;
+				gameSortLayer.SortLayerName = LAYER_HOVER;
+			})
+			.OnAnimationEnd((_, _) => {
+				Cursor.visible = true;
+			});
 
 			skeletonMchine.SetDefault("In");
 			skeletonMchine.StartMachine();
 		}
 
+		public void CharacterDestroy()
+		{
+			if(dropCell != null)
+			{
+				dropCell.OnCharacterDroped((Cell)=>
+				{
+					GridSystem.GenerateTime -= GridSystem.GenerateTime * 0.2f;
+				});
+			}
+			Destroy(this.gameObject);
+		}
+
 		protected override void OnUpdate()
 		{
-			if(Input.GetMouseButtonDown(1))
-			{
-				OnCellMouseDown();
-			}
-
 			if(_isWrong)
 			{
 				FollowDragPoint(_mouseManager.WorldPosition);
@@ -158,6 +215,11 @@ namespace CGJ2025.Character
 			if(_canCatch)
 			{
 				state = State.Catch;
+				onshotAudio.PlayOneShot(audioCatchSuccess);
+
+				var random = UnityEngine.Random.Range(0, 2);
+				if (random == 0) PlayGrassAudio(audioRepel); 
+				else PlayGrassAudio(audioRepel);
 			}
 
 			gameSortLayer.SortLayerName = LAYER_HOVER;
@@ -194,9 +256,12 @@ namespace CGJ2025.Character
 			state = State.DropFail;
 		}
 
+		public Cell currentCell;
 
-        public override void OnCellMouseDown()
+        public override void OnCellMouseDown(Cell cell)
         {
+			currentCell = cell;
+
 			state = State.Find;
 			_isEscape = false;
 			_timer = timerManager.SetTimeout((deltaTime)=>

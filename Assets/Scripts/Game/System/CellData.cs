@@ -15,7 +15,7 @@ namespace CGJ2025.System.Grid
 
 	public class CellData
 	{
-		public CellType cellType;
+		public CellType cellType = CellType.Empty;
 
 
 

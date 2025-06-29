@@ -4,27 +4,34 @@ using RuGameFramework.Core;
 using System.Collections.Generic;
 using UnityEngine;
 using RuGameFramework.Mono;
+using CGJ2025.Scene;
+using RuGameFramework.Scene;
 
 namespace RuGameFramework
 {
 	public class App : MonoBehaviour
 	{
+		public static readonly float SampleRate = 0.016f;
 		private static string GameUIPath = "UI/GameUI";
 
 		private static App _instance;
 		public static App Instance => _instance;
 
-		private GameMono _gameMono;
+		[SerializeField] private GameMono _gameMono;
 
-		private MouseManager _mouseManager;
+		[SerializeField] private MouseManager _mouseManager;
 		public MouseManager MouseManager => _mouseManager;
 
-		private TimerManager _timerManager;
+		[SerializeField] private TimerManager _timerManager;
 		public TimerManager TimerManager => _timerManager;
 
 		private Dictionary<int, GameObject> _dontDestroyDic = new Dictionary<int, GameObject>(8);
 
 		private Timer timer;
+
+		public GameScene gameScene;
+
+		public List<Texture2D> cursorTexList = new List<Texture2D>();
 
 		void Awake ()
 		{
@@ -40,25 +47,43 @@ namespace RuGameFramework
 			DontDestroyOnLoad(this);
 
 			Application.targetFrameRate = 60;
+			OnGameStartInit();
 		}
 
 		void Start ()
 		{
-			OnGameStartInit();
+
 		}
 
-		// Addressable初始化完成
+		public void ChangeCursorDefault()
+		{
+			Texture2D tex = cursorTexList[1];
+			Vector2 hotspot = new Vector2(tex.width / 2f, tex.height / 2f);
+			Cursor.SetCursor(tex, hotspot, CursorMode.Auto);
+		}
+
+		public void ChangeCursorHold()
+		{
+			Texture2D tex = cursorTexList[0];
+			Vector2 hotspot = new Vector2(tex.width / 2f, tex.height / 2f);
+			Cursor.SetCursor(tex, hotspot, CursorMode.Auto);
+		}
+
 		private void OnGameStartInit ()
 		{
 			InitManager();
 
-			TimerManager.StartSchedule(TimerManager.TimeType.RealTimeSinceStartUp, 0.016f);
-			// 创建UI
+			TimerManager.StartSchedule(TimerManager.TimeType.RealTimeSinceStartUp, SampleRate);
+			
 			RuUI.CreateGameUI(new ResAssetLoadAdapter(this), GameUIPath, OnCreateGameUI);
 			RegisterData();
+			ChangeCursorDefault();
+			SceneManager.LoadSceneAsync("GameScene", null, ()=>
+			{
+				gameScene = FindObjectOfType<GameScene>();
+			});
 		}
-
-		// UI创建完毕
+		
 		private void OnCreateGameUI (GameObject uiObj)
 		{
 			
@@ -71,7 +96,7 @@ namespace RuGameFramework
 
 		void Update ()
 		{
-
+			
 		}
 
 		private void InitManager ()
@@ -90,6 +115,8 @@ namespace RuGameFramework
 			{
 				_timerManager = gameObject.AddComponent<TimerManager>();
 			}
+
+			SceneManager.Initialization(this, 0);
 		}
 
 		private void RegisterData ()

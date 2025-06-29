@@ -1,10 +1,11 @@
 using CGJ2025.System.Grass;
 using CGJ2025.System.Grid;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using RuGameFramework;
 using RuGameFramework.Input;
+using CGJ2025.Character;
+using System;
 
 namespace CGJ2025.SceneCell
 {
@@ -15,8 +16,12 @@ namespace CGJ2025.SceneCell
 		public List<GameObject> plantList;
 		public MouseManager mouseManager;
 
+		public CellData cellData = new CellData();
+		public ICharacter character;
+
 		private Collider2D m_collider2D;
 
+		public Action OnRepel;
 
 		public void Start()
 		{
@@ -32,7 +37,6 @@ namespace CGJ2025.SceneCell
 				mouseManager = FindObjectOfType<MouseManager>();
 			}
 
-
 			if (grassSystem == null)
 			{
 				grassSystem = gameObject.AddComponent<GrassSystem>();
@@ -40,21 +44,90 @@ namespace CGJ2025.SceneCell
 			
 			grassSystem._mouseManager = mouseManager;
 			m_collider2D = GetComponent<Collider2D>();
+
+			grassSystem.OnStartRepel += OnGrassRepel;
+
 		}
+
+		public void OnGrassRepel()
+		{
+			if(character != null)
+			{
+				character.OnCellMouseDown(this);
+			}
+		}
+
 
 		void Update()
 		{
-			if (mouseManager._mouseData.LeftState == RuGameFramework.Input.MouseButtonState.Down &&
-			mouseManager._mouseData.collider == m_collider2D)
-			{
-				grassSystem.TryStartRepel();
-			}
-			else
-			{
-				grassSystem.TryEndRepel();
-			}
-           
+			if (mouseManager._mouseData.collider == m_collider2D && mouseManager._mouseData.LeftState != RuGameFramework.Input.MouseButtonState.Down)
+            {
+				OnRepel?.Invoke();
+                grassSystem.TryStartRepel();    
+            }
+            else
+            {
+                grassSystem.TryEndRepel();
+            }
         }
+
+		public void CreateGrass()
+		{
+			grassSystem.GenerateGrass();
+			OnRemoveCharacter?.Invoke(this);
+		}
+
+		public void AddCharacter(GameObject character, Action callback = null)
+		{
+			this.character = character.GetComponent<ICharacter>();
+			float randomRangeX = 3f;
+			float randomRangeY = 0.8f;
+			Vector3 pos;
+			do
+			{
+				float x = UnityEngine.Random.Range(-randomRangeX, randomRangeX);
+				float y = UnityEngine.Random.Range(-randomRangeY, randomRangeY);
+				pos = new Vector3(x, y, 0);
+			}
+			while (Mathf.Abs(pos.x / randomRangeX) + Mathf.Abs(pos.y / randomRangeY) > 1);
+			character.transform.position = this.transform.position + pos;
+		}
+
+		public Action<Cell> OnRemoveCharacter;
+
+		public void RemoveCharacte()
+		{
+			OnRemoveCharacter?.Invoke(this);
+			character = null;
+		}
+
+		public void OnCharacterDroped(Action<Cell> onDroped)
+		{
+			if(cellData.cellType == CellType.Empty)
+			{
+				CreateGrass();
+				return;
+			}
+			onDroped?.Invoke(this);
+		}
+
+		public void Shake()
+		{
+			if(cellData.cellType != CellType.Grass)
+			{
+				return;
+			}
+			grassSystem.StartShaking();
+		}
+
+		public void StopShake()
+		{
+			if(cellData.cellType != CellType.Grass)
+			{
+				return;
+			}
+			grassSystem.StopShaking();
+		}
     }
 
 }

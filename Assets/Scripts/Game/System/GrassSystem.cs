@@ -168,7 +168,6 @@ namespace CGJ2025.System.Grass
         {
             if (isRepelling) return;
 
-            Debug.Log("Start Repel");
             isRepelling = true;
             repelLerpSpeed = clickingLerpSpeed;
             repelMaxAngle = ClickingMaxAngle;
@@ -178,7 +177,6 @@ namespace CGJ2025.System.Grass
         public void TryEndRepel() {
             if (!isRepelling) return;
 
-            Debug.Log("End Repel");
             isRepelling = false;
             repelLerpSpeed = normalLerpSpeed;
             repelMaxAngle = normalMaxAngle;
