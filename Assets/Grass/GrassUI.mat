@@ -7,14 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grass
-  m_Shader: {fileID: 4800000, guid: 7065d37861c031547bdde513ca38e158, type: 3}
+  m_Name: GrassUI
+  m_Shader: {fileID: 4800000, guid: 2bc403d36b1a31e409cc4b4751c7a16d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -76,14 +76,14 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SwayRange: 1
-    - _SwaySpeed: 2
-    - _SwayStrength: 0.5
+    - _SwayRange: 1e-24
+    - _SwaySpeed: 10
+    - _SwayStrength: 31.93
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ManualSwayOffset: {r: 0.0026623453, g: 0, b: 0, a: 0}
-    - _RootWorldPos: {r: 29.562414, g: -55.222336, b: 100, a: 0}
+    - _ManualSwayOffset: {r: 1, g: 1, b: 1, a: 1}
+    - _RootWorldPos: {r: 3, g: 3, b: 3, a: 0}
   m_BuildTextureStacks: []

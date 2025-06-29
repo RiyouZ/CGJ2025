@@ -10,62 +10,28 @@ public class GrassUI : MonoBehaviour
     public List<Image> grassImages = new List<Image>();
 
 
-    [Header("Normal Repel Parameters")]
-    [SerializeField]
-    private float normalLerpSpeed = 5f;
-
-    [SerializeField]
-    private float normalMaxAngle = 0.5f;
-    [SerializeField]
-    private float normalInfluence = 3f;
-
-    [Header("Clicking Repel Parameters")]
-    [SerializeField]
-    private float clickingLerpSpeed = 5f;
-    [SerializeField]
-    private float ClickingMaxAngle = 10f;
-
-    [SerializeField]
-    private float clickingInfluence = 1f;
-
+    public Material grassUIMaterial;
 
     [Header("Repel")]
-    public bool isRepelling = false;
+    [SerializeField]
     private float repelLerpSpeed = 5f;
+    [SerializeField]
     private float repelMaxAngle = 0.5f;
+    [SerializeField]
     private float repelInfluence = 3f;
-        // 存储每个草当前角度状态
+    // 存储每个草当前角度状态
     private Dictionary<Image, float> currentAngles = new Dictionary<Image, float>();
 
     private Dictionary<Image, RectTransform> rects = new Dictionary<Image, RectTransform>();
-    // MaterialPropertyBlock 缓存
-    private Dictionary<Image, MaterialPropertyBlock> blockCache = new Dictionary<Image, MaterialPropertyBlock>();
 
 
-    public void TryStartRepel()
-    {
-        if (isRepelling) return;
 
-        Debug.Log("Start Repel");
-        isRepelling = true;
-        repelLerpSpeed = clickingLerpSpeed;
-        repelMaxAngle = ClickingMaxAngle;
-        repelInfluence = clickingInfluence;
-    }
-    public void TryEndRepel() {
-        if (!isRepelling) return;
-
-        Debug.Log("End Repel");
-        isRepelling = false;
-        repelLerpSpeed = normalLerpSpeed;
-        repelMaxAngle = normalMaxAngle;
-        repelInfluence = normalInfluence;
-    }
     void Start()
     {
         foreach (var image in GetComponentsInChildren<Image>())
         {
             grassImages.Add(image);
+            image.material = new Material(grassUIMaterial);
         }
     }
     void Update()
@@ -79,8 +45,6 @@ public class GrassUI : MonoBehaviour
             // 初始化缓存
             if (!currentAngles.ContainsKey(image))
                 currentAngles[image] = 0f;
-            if (!blockCache.ContainsKey(image))
-                blockCache[image] = new MaterialPropertyBlock();
 
             if (!rects.ContainsKey(image))
                 rects[image] = image.transform.GetComponent<RectTransform>();
@@ -94,10 +58,10 @@ public class GrassUI : MonoBehaviour
                 canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
                 out toMouse
                 );
-            Debug.Log(toMouse);
+
 
             float dist = toMouse.magnitude;
-            float influence = Mathf.Exp(-dist * repelInfluence);
+            float influence = Mathf.Exp(-dist / 1000f * repelInfluence);
             float side = Mathf.Sign(toMouse.x);
             float targetAngle = side * influence * repelMaxAngle;
 
@@ -105,12 +69,11 @@ public class GrassUI : MonoBehaviour
             float angle = Mathf.Lerp(currentAngles[image], targetAngle, Time.deltaTime * repelLerpSpeed);
             currentAngles[image] = angle;
 
-            // 更新属性块
-            // var block = blockCache[image];
-            // image.GetPropertyBlock(block);
-            // block.SetVector("_RootWorldPos", image.transform.position);
-            // block.SetVector("_ManualSwayOffset", new Vector4(angle, 0, 0, 0));
-            // image.SetPropertyBlock(block);
+            Debug.Log(dist + " " + influence + " " + side + " " + targetAngle + " " + angle);
+            Debug.Log(image.rectTransform.rect);
+
+            image.material.SetVector("_RootWorldPos", image.transform.position);
+            //image.material.SetVector("_ManualSwayOffset", new Vector4(angle, 0, 0, 0));
         }
     }
 }

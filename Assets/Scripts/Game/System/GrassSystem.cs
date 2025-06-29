@@ -186,6 +186,10 @@ namespace CGJ2025.System.Grass
 
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                GenerateGrass();
+            }
             foreach (var renderer in grassRenderers)
             {
                 if (renderer == null) continue;

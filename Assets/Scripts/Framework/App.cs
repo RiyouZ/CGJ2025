@@ -50,7 +50,7 @@ namespace RuGameFramework
 			OnGameStartInit();
 		}
 
-		void Start ()
+		void Start()
 		{
 
 		}
@@ -69,12 +69,13 @@ namespace RuGameFramework
 			Cursor.SetCursor(tex, hotspot, CursorMode.Auto);
 		}
 
-		private void OnGameStartInit ()
+		// Addressable��ʼ�����
+		private void OnGameStartInit()
 		{
 			InitManager();
 
-			TimerManager.StartSchedule(TimerManager.TimeType.RealTimeSinceStartUp, SampleRate);
-			
+			TimerManager.StartSchedule(TimerManager.TimeType.RealTimeSinceStartUp, 0.016f);
+			// ����UI
 			RuUI.CreateGameUI(new ResAssetLoadAdapter(this), GameUIPath, OnCreateGameUI);
 			RegisterData();
 			ChangeCursorDefault();
@@ -83,23 +84,24 @@ namespace RuGameFramework
 				gameScene = FindObjectOfType<GameScene>();
 			});
 		}
-		
-		private void OnCreateGameUI (GameObject uiObj)
+
+		// UI�������
+		private void OnCreateGameUI(GameObject uiObj)
+		{
+
+		}
+
+		private void GameStart()
 		{
 			
 		}
 
-		private void GameStart ()
+		void Update()
 		{
 
 		}
 
-		void Update ()
-		{
-			
-		}
-
-		private void InitManager ()
+		private void InitManager()
 		{
 			if (_gameMono == null)
 			{
@@ -115,21 +117,20 @@ namespace RuGameFramework
 			{
 				_timerManager = gameObject.AddComponent<TimerManager>();
 			}
-
 			SceneManager.Initialization(this, 0);
 		}
 
-		private void RegisterData ()
+		private void RegisterData()
 		{
 
 		}
 
-		private void UnRegisterData ()
+		private void UnRegisterData()
 		{
 
 		}
 
-		public void AddDontDestroyList (GameObject obj)
+		public void AddDontDestroyList(GameObject obj)
 		{
 			if (obj == null)
 			{
@@ -141,27 +142,27 @@ namespace RuGameFramework
 				return;
 			}
 
-			this._dontDestroyDic.Add(obj.GetInstanceID(), obj);	
+			this._dontDestroyDic.Add(obj.GetInstanceID(), obj);
 			DontDestroyOnLoad(obj);
 		}
-		
-		public void DestroyDontDestroyList (GameObject obj)
+
+		public void DestroyDontDestroyList(GameObject obj)
 		{
 			if (obj == null)
 			{
 				return;
 			}
-			
+
 			if (!_dontDestroyDic.TryGetValue(obj.GetInstanceID(), out var dontDestroyObj))
 			{
 				return;
 			}
-			
+
 			Destroy(obj);
-			this._dontDestroyDic.Remove(obj.GetInstanceID());	
+			this._dontDestroyDic.Remove(obj.GetInstanceID());
 		}
 
-		public void ClearDontDestroyList ()
+		public void ClearDontDestroyList()
 		{
 			if (this._dontDestroyDic == null)
 			{
@@ -176,7 +177,13 @@ namespace RuGameFramework
 			this._dontDestroyDic.Clear();
 			this._dontDestroyDic = null;
 		}
-
+		public void LoadGameScene()
+		{
+			SceneManager.LoadSceneAsync("GameScene", null, null);
+		}
+		public void ExitGame()
+		{
+			Application.Quit();
+		}
 	}
-
 }
