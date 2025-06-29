@@ -21,7 +21,7 @@ namespace CGJ2025.System.Interact
         public Collider2D CurrentObject;
         private float _dragTime;
 
-        private Camera _mainCamera;
+        public Camera _mainCamera;
 
         void Start()
         {
@@ -44,6 +44,10 @@ namespace CGJ2025.System.Interact
 
         public void DragUpdate()
         {
+            if(_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+            }
             var pos =  _mainCamera.ScreenToWorldPoint(Input.mousePosition);
 			CurrentObject = Physics2D.OverlapPoint(pos, 1 << 8);
 

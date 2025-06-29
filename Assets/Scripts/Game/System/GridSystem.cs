@@ -101,7 +101,8 @@ namespace CGJ2025.System.Grid
 			var idx = Index(grassCellList[randomCell]);
 			var cell = groundObj[idx.x, idx.y];
 
-			if(cell.character != null)
+			if (cell == null) return;
+			if (cell.character != null)
 			{
 				return;
 			}
