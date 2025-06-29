@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GrassUI
-  m_Shader: {fileID: 4800000, guid: 2bc403d36b1a31e409cc4b4751c7a16d, type: 3}
+  m_Shader: {fileID: 4800000, guid: 7065d37861c031547bdde513ca38e158, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -70,15 +70,15 @@ Material:
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
-    - _NoiseScale: 1
+    - _NoiseScale: 3.11
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SwayRange: 1e-24
-    - _SwaySpeed: 10
-    - _SwayStrength: 31.93
+    - _SwayRange: 0.81
+    - _SwaySpeed: 13.68
+    - _SwayStrength: 0.15
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:

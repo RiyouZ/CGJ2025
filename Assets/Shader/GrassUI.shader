@@ -73,7 +73,7 @@ Shader "Game/GrassUI"
 
                 float manualAngle = _ManualSwayOffset.x;
                 float localHeight = v.vertex.y;
-                o.debug = v.vertex.y / 200;
+                o.debug = v.vertex.y / 1440;
                 float weight = saturate(localHeight / _SwayRange);
 
                 float totalAngle = (swayAngle + manualAngle) * weight;

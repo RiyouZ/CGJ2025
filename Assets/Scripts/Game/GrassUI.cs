@@ -1,79 +1,77 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using RuGameFramework;
+using RuGameFramework.Input;
+using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+
+
 
 public class GrassUI : MonoBehaviour
 {
-    public Canvas canvas;
+    public MouseManager _mouseManager;
+    public List<Renderer> grassRenderers = new List<Renderer>();
 
-    public List<Image> grassImages = new List<Image>();
-
-
-    public Material grassUIMaterial;
+    public Material sharedMaterial;
 
     [Header("Repel")]
+    [SerializeField]
+    public bool isRepelling = true;
     [SerializeField]
     private float repelLerpSpeed = 5f;
     [SerializeField]
     private float repelMaxAngle = 0.5f;
     [SerializeField]
     private float repelInfluence = 3f;
+
+
+
     // 存储每个草当前角度状态
-    private Dictionary<Image, float> currentAngles = new Dictionary<Image, float>();
-
-    private Dictionary<Image, RectTransform> rects = new Dictionary<Image, RectTransform>();
-
-
+    private Dictionary<Renderer, float> currentAngles = new Dictionary<Renderer, float>();
+    // MaterialPropertyBlock 缓存
+    private Dictionary<Renderer, MaterialPropertyBlock> blockCache = new Dictionary<Renderer, MaterialPropertyBlock>();
 
     void Start()
     {
-        foreach (var image in GetComponentsInChildren<Image>())
+        foreach (var renderer in GetComponentsInChildren<Renderer>())
         {
-            grassImages.Add(image);
-            image.material = new Material(grassUIMaterial);
+            grassRenderers.Add(renderer);
+            renderer.material = sharedMaterial;
         }
     }
     void Update()
     {
-
-        foreach (var image in grassImages)
+        
+        foreach (var renderer in grassRenderers)
         {
-            if (image == null) continue;
-
+            if (renderer == null) continue;
 
             // 初始化缓存
-            if (!currentAngles.ContainsKey(image))
-                currentAngles[image] = 0f;
+            if (!currentAngles.ContainsKey(renderer))
+                currentAngles[renderer] = 0f;
+            if (!blockCache.ContainsKey(renderer))
+                blockCache[renderer] = new MaterialPropertyBlock();
 
-            if (!rects.ContainsKey(image))
-                rects[image] = image.transform.GetComponent<RectTransform>();
-
-
-            // Converts mouse position to local position relative to uiRoot
-            Vector2 toMouse;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                rects[image],
-                Input.mousePosition,
-                canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
-                out toMouse
-                );
-
-
+            Vector3 rootWorld = renderer.transform.position;
+            Vector2 toMouse = _mouseManager.WorldPosition - rootWorld;
             float dist = toMouse.magnitude;
-            float influence = Mathf.Exp(-dist / 1000f * repelInfluence);
+            float influence = Mathf.Exp(-dist * repelInfluence);
             float side = Mathf.Sign(toMouse.x);
             float targetAngle = side * influence * repelMaxAngle;
 
             // 插值当前角度
-            float angle = Mathf.Lerp(currentAngles[image], targetAngle, Time.deltaTime * repelLerpSpeed);
-            currentAngles[image] = angle;
+            float angle = Mathf.Lerp(currentAngles[renderer], targetAngle, Time.deltaTime * repelLerpSpeed);
+            currentAngles[renderer] = angle;
 
-            Debug.Log(dist + " " + influence + " " + side + " " + targetAngle + " " + angle);
-            Debug.Log(image.rectTransform.rect);
-
-            image.material.SetVector("_RootWorldPos", image.transform.position);
-            //image.material.SetVector("_ManualSwayOffset", new Vector4(angle, 0, 0, 0));
+            // 更新属性块
+            var block = blockCache[renderer];
+            renderer.GetPropertyBlock(block);
+            block.SetVector("_RootWorldPos", rootWorld);
+            block.SetVector("_ManualSwayOffset", new Vector4(angle, 0, 0, 0));
+            renderer.SetPropertyBlock(block);
         }
     }
+
 }
