@@ -90,7 +90,7 @@ namespace CGJ2025.Character
 					state = State.Escape;
 				});
 			
-			fSM.SetDefault(State.Hide, App.SampleRate);
+			fSM.SetDefault(State.Hide, 0.016f);
         }
         
         protected override void InitializeSkeleton()

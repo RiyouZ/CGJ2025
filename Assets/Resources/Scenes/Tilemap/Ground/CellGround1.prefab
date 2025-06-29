@@ -1,5 +1,83 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6208667045224492407
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4053529299649054982}
+  - component: {fileID: 4539435259732566563}
+  m_Layer: 0
+  m_Name: GrassSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4053529299649054982
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6208667045224492407}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8465478694326803339}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4539435259732566563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6208667045224492407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8772ad54d711092499761657c0fcf4c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mouseManager: {fileID: 0}
+  plantSpriteList:
+  - {fileID: 21300000, guid: 59f413342989a0940bdf2cface1e4ca8, type: 3}
+  - {fileID: 21300000, guid: e8fdefaf505d52041b37b2aef2a958c6, type: 3}
+  - {fileID: 21300000, guid: 334ed5eb6bfd0b94cb3ded215ab849db, type: 3}
+  - {fileID: 21300000, guid: ca08db8840c19df4e925756b1aba6844, type: 3}
+  - {fileID: 21300000, guid: 456015667ea6a1f44830d4678d846d67, type: 3}
+  - {fileID: 21300000, guid: 5c9ae225498d5dc45b54dbb7ef8c071e, type: 3}
+  - {fileID: 21300000, guid: 894a4e623648ecb45b7c7a6a629326e0, type: 3}
+  - {fileID: 21300000, guid: b086c3136afde784f82f63ad387d778e, type: 3}
+  - {fileID: 21300000, guid: e0073d3ffc25b6d4594d10ef48b45508, type: 3}
+  - {fileID: 21300000, guid: 2b3cfee60e7db3d41987c7ec8cef5e07, type: 3}
+  - {fileID: 21300000, guid: 26bf02b52bfd9cc409739ca14351a941, type: 3}
+  plantRandomWeightList:
+  - 10
+  - 10
+  - 10
+  - 10
+  - 5
+  - 1
+  - 1
+  - 4
+  - 4
+  - 4
+  - 4
+  grassSinglePrefab: {fileID: 4175230893009331842, guid: 22778ce9d25670b45b55f2d306cbc621, type: 3}
+  randomRangeX: 3.5
+  randomRangeY: 1
+  plantsCount: 80
+  grassRenderers: []
+  sharedMaterial: {fileID: 2100000, guid: bcc9038880a52c741adcd761cba4bfbd, type: 2}
+  repelLerpSpeed: 5
+  repelMaxAngle: 0.5
+  repelInfluence: 2
 --- !u!1 &7027319625468159724
 GameObject:
   m_ObjectHideFlags: 0
@@ -31,7 +109,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4053529299649054982}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7873629527029355860
@@ -47,7 +126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridIndex: {x: 0, y: 0}
-  grassSystem: {fileID: 0}
+  grassSystem: {fileID: 4539435259732566563}
   plantList: []
 --- !u!212 &408102871998999707
 SpriteRenderer:

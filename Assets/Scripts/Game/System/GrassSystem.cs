@@ -1,14 +1,34 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using RuGameFramework;
 using RuGameFramework.Input;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace CGJ2025.System.Grass
 {
     public class GrassSystem : MonoBehaviour
     {
+
+        /// <summary>
+        /// 回调
+        /// </summary>
+        public event Action OnGrassRepel;
+
         public MouseManager _mouseManager;
-        public List<GameObject> plantList;
+        public List<Sprite> plantSpriteList;
+        public List<float> plantRandomWeightList;
+
+        [SerializeField]
+        private GameObject grassSinglePrefab;
+
+        [SerializeField]
+        private float randomRangeX = 3f;
+        [SerializeField]
+        private float randomRangeY = 0.8f;
+        [SerializeField]
+        private int plantsCount = 20;
 
         public List<Renderer> grassRenderers = new List<Renderer>();
 
@@ -25,6 +45,51 @@ namespace CGJ2025.System.Grass
 
         void Start()
         {
+            if(App.Instance != null)
+                _mouseManager = App.Instance.MouseManager;
+            if (_mouseManager == null)
+            {
+                _mouseManager = FindObjectOfType<MouseManager>();
+            }
+
+            // Generate Grass
+            float totalWeight = 0f;
+            foreach (float weight in plantRandomWeightList)
+                totalWeight += weight;
+
+            for (int i = 0; i < plantsCount; i++)
+            {
+                GameObject go = Instantiate(grassSinglePrefab, transform);
+                Vector3 pos;
+                do
+                {
+                    float x = UnityEngine.Random.Range(-randomRangeX, randomRangeX);
+                    float y = UnityEngine.Random.Range(-randomRangeY, randomRangeY);
+                    pos = new Vector3(x, y, 0);
+                }
+                // 拒绝采样，保证在菱形区域内
+                while (Mathf.Abs(pos.x / randomRangeX) + Mathf.Abs(pos.y / randomRangeY) > 1);
+
+                go.transform.localPosition = pos;
+                SpriteRenderer rend = go.GetComponent<SpriteRenderer>();
+                float randomValue = UnityEngine.Random.Range(0, totalWeight);
+                float cumulative = 0f;
+                int plantIndex = plantRandomWeightList.Count - 1;
+                for (int k = 0; k < plantRandomWeightList.Count; k++)
+                {
+                    cumulative += plantRandomWeightList[k];
+                    if (randomValue < cumulative)
+                    {
+                        plantIndex = k;
+                        break;
+                    }
+                }
+
+                rend.sprite = plantSpriteList[plantIndex];
+
+                grassRenderers.Add(rend);
+            }
+
             // 初始化材质统一设置
             foreach (var rend in grassRenderers)
             {
@@ -35,8 +100,28 @@ namespace CGJ2025.System.Grass
             }
         }
 
+        int GetWeightedRandomIndex(List<float> weights)
+        {
+            float totalWeight = 0f;
+            foreach (float weight in weights)
+                totalWeight += weight;
+
+            float randomValue = UnityEngine.Random.Range(0, totalWeight);
+            float cumulative = 0f;
+
+            for (int i = 0; i < weights.Count; i++)
+            {
+                cumulative += weights[i];
+                if (randomValue < cumulative)
+                    return i;
+            }
+
+            return weights.Count - 1;
+        }
+
         void Update()
         {
+            // Mouse Interaction
             foreach (var renderer in grassRenderers)
             {
                 if (renderer == null) continue;
@@ -67,10 +152,6 @@ namespace CGJ2025.System.Grass
             }
         }
         
-        public void Initialize(List<GameObject> plantList)
-        {
-            this.plantList = plantList;
-        }
     }
 
 

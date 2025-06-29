@@ -23,11 +23,13 @@ Shader "Game/Grass"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_instancing
             #include "UnityCG.cginc"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float4 _RootWorldPos;
+            
+            //float4 _RootWorldPos;
             float _SwayStrength;
             float _RepelStrength;
             float _SwaySpeed;
@@ -35,6 +37,12 @@ Shader "Game/Grass"
             float _NoiseScale;
             float _SwayRange;
             float4 _ManualSwayOffset;
+
+              // --- GPU Instancing support ---
+            UNITY_INSTANCING_BUFFER_START(Props)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _RootWorldPos)
+            UNITY_INSTANCING_BUFFER_END(Props)
+
 
             float hash21(float2 p)
             {
@@ -60,8 +68,8 @@ Shader "Game/Grass"
                 v2f o;
 
                 float time = _SinTime.x;
-
-                float2 rootWorld = _RootWorldPos.xy;
+                float2 rootWorld = UNITY_ACCESS_INSTANCED_PROP(Props, _RootWorldPos).xy;
+                //float2 rootWorld = _RootWorldPos.xy;
 
                 // 噪声自然摇摆
                 float noise = hash21(rootWorld * _NoiseScale);

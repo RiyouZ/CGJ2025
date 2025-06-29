@@ -44,6 +44,12 @@ TagManager:
   - name: Ground
     uniqueID: 3420643507
     locked: 0
+  - name: UnderGrass
+    uniqueID: 2958330655
+    locked: 0
+  - name: Grass
+    uniqueID: 2790101885
+    locked: 0
   - name: Interactable
     uniqueID: 1489131947
     locked: 0
