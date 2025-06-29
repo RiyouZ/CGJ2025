@@ -106,7 +106,11 @@ namespace RuGameFramework
 
 		public void LoadGameScene()
 		{
-			SceneManager.LoadSceneAsync("GameScene");
+			SceneManager.LoadSceneAsync("GameScene", null, () =>
+			{
+				gameScene = GameObject.Find("Scene").GetComponent<GameScene>();
+			});
+
 		}
 
 		public void AddDontDestroyList (GameObject obj)

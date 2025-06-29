@@ -26,19 +26,20 @@ namespace CGJ2025.Scene
 		{
 			Initialize();
 		}
+		
 
-		private void Initialize ()
+		private void Initialize()
 		{
-			if(timerManager == null)
+			if (timerManager == null)
 			{
 				timerManager = App.Instance.TimerManager;
 			}
 
-			if(mouseManager == null)
+			if (mouseManager == null)
 			{
 				mouseManager = App.Instance.MouseManager;
 			}
-			
+
 
 			gridSystem = gameObject.GetComponent<GridSystem>();
 			if (gridSystem == null)
@@ -52,7 +53,7 @@ namespace CGJ2025.Scene
 			gridSystem.Initialize(5, 5, cellList);
 
 			interactSystem = gameObject.GetComponent<InteractSystem>();
-			if(interactSystem == null)
+			if (interactSystem == null)
 			{
 				interactSystem = gameObject.AddComponent<InteractSystem>();
 			}

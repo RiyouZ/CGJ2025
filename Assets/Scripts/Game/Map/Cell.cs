@@ -23,7 +23,7 @@ namespace CGJ2025.SceneCell
 
 		public Action OnRepel;
 
-		public void Start()
+		public void Awake()
 		{
 			gridIndex = GameObject.Find("Scene").GetComponent<GridSystem>().WorldToCell(this.transform.position);
 

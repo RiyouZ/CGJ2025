@@ -121,7 +121,8 @@ namespace CGJ2025.Character
 
 		protected virtual void OnStart() {}
 
-		void Update() {
+		void Update()
+		{
 			OnUpdate();
 			skeletonMchine.UpdateMachine();
 			fSM.UpdateMachine();
@@ -129,15 +130,26 @@ namespace CGJ2025.Character
 
 		protected virtual void OnUpdate(){}
 
-		void OnTriggerEnter2D(Collider2D other)
-		{
-			dropCell = other.GetComponent<Cell>();
-		}
+		// void OnTriggerEnter2D(Collider2D other)
+		// {
+		// 	Debug.Log(other.name);
+		// 	var target = other.GetComponent<Cell>();
+		// 	if (target != null)
+		// 	{	
+		// 		dropCell = target;
+		// 		dropCell.GetComponent<SpriteRenderer>().enabled = true;
+		// 	}
+		// }
 
-		void OnTriggerExit2D(Collider2D other)
-		{
-			dropCell = null;
-		}
+		// void OnTriggerExit2D(Collider2D other)
+		// {
+		// 	var target = other.GetComponent<Cell>();
+		// 	if (target != null)
+		// 	{
+		// 		target.GetComponent<SpriteRenderer>().enabled = false;
+		// 		dropCell = null;
+		// 	}
+		// }
 
 		void LateUpdate() {
 			UpdateCollider(skeletonAnimation);
@@ -180,12 +192,40 @@ namespace CGJ2025.Character
 
 		public virtual void OnDragUpdate(InteractContext context)
 		{
-			if(!DragCondition(context))
+			if (!DragCondition(context))
 			{
 				return;
 			}
-			
+
 			FollowDragPoint(context.mousePosition);
+			
+			
+			var cellIndex = App.Instance.gameScene.gridSystem.WorldToCell(this.transform.position);
+			if (cellIndex != new Vector2Int(-1, -1))
+			{
+				if (dropCell != null)
+				{
+					var rend = dropCell.GetComponent<SpriteRenderer>();
+					if (rend) rend.enabled = false;
+				}
+				dropCell = App.Instance.gameScene.gridSystem.groundObj[cellIndex.x, cellIndex.y];
+				if (dropCell != null)
+				{
+					var	rend = dropCell.GetComponent<SpriteRenderer>();
+					if (rend) rend.enabled = true;
+				}
+
+			}
+			else
+			{
+				if (dropCell != null)
+				{
+					var rend = dropCell.GetComponent<SpriteRenderer>();
+					if (rend) rend.enabled = false;
+				}
+
+				dropCell = null;
+			}
 		}
 
 		public void FollowDragPoint(Vector2 mousePosition)

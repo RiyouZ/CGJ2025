@@ -139,9 +139,12 @@ namespace CGJ2025.System.Grid
 
 		public Vector2Int TileIndexToGroundIndex (Vector3Int pos)
 		{
-			return new Vector2Int(pos.x - originPos.x, pos.y - originPos.y);
+			var index = new Vector2Int(pos.x - originPos.x, pos.y - originPos.y);
+			if (index.x > 0 || index.x < row || index.y > 0 || index.y < col)
+				return index;
+			else
+				return new Vector2Int(-1, -1);
 		}
-
 		public Vector3Int GroundIndexToTileIndex (Vector3Int pos)
 		{
 			if (pos.x < 0 || pos.x >= _width || pos.y < 0 || pos.y >= _height)
