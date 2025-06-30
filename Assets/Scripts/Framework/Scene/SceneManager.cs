@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 namespace RuGameFramework.Scene
 {
 	/// <summary>
-	/// ³¡¾°ÇÐ»»¹ÜÀíÆ÷ Ö÷ÒªÓÃÓÚÇÐ»»³¡¾°
+	/// ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½
 	/// </summary>
 	public static class SceneManager
 	{
@@ -30,7 +30,7 @@ namespace RuGameFramework.Scene
 			_waitForSeconds = new WaitForSeconds (loadWaitTime);
 		}
 
-		//Í¬²½ÇÐ»»³¡¾°µÄ·½·¨
+		//Í¬ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½
 		[Obsolete]
 		public static void LoadScene (string name, Action callBack = null)
 		{
@@ -39,10 +39,10 @@ namespace RuGameFramework.Scene
 			callBack = null;
 		}
 
-		//Òì²½ÇÐ»»³¡¾°µÄ·½·¨
+		//ï¿½ì²½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½
 		public static void LoadSceneAsync (string name, Action onLoading = null,Action onComplate = null)
 		{
-			// Ö»¿É¼ÓÔØÒ»¸ö³¡¾°
+			// Ö»ï¿½É¼ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			if (_asyncLoadHandle != null || _isLoading)
 			{
 				return;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CGJ2025.SceneCell;
+using CGJ2025.System.Grid;
 using CGJ2025.System.Interact;
 using RuGameFramework;
 using RuGameFramework.AnimeStateMachine;
@@ -45,13 +46,23 @@ namespace CGJ2025.Character
 		public GameSortLayerCom gameSortLayer;
 
 		protected Cell dropCell;
-	
-		public GameObject CharacteObject
-        {
-            get => this.gameObject;
-        }
 
-		private void Start() 
+		private int _skinIndex;
+	
+		public GameObject CharacteObject => this.gameObject;
+		public GameObject InteractObject => this.gameObject;
+
+		public virtual bool IsGrassRepel
+		{
+			set; get;
+		}
+
+        public Cell GenCell 
+		{
+			get; set; 
+		}
+
+        private void Start() 
 		{
 			if(timerManager == null)
 			{
@@ -63,6 +74,13 @@ namespace CGJ2025.Character
 				skeletonAnimation = GetComponentInChildren<SkeletonAnimation>();
 				skeletonAnimation.skeletonDataAsset = characterData.skeletonData;
 				skeletonAnimation.Initialize(true);
+
+				_skinIndex = UnityEngine.Random.Range(0, characterData.skinInfoList.Count);
+				var skin = characterData.skinInfoList[_skinIndex].skinName;
+
+				skeletonAnimation.skeleton.SetSkin(skin);
+				skeletonAnimation.skeleton.SetSlotsToSetupPose();
+				skeletonAnimation.AnimationState.Apply(skeletonAnimation.skeleton);
 				spineRenderer = skeletonAnimation.GetComponent<Renderer>();
 			}
 
@@ -130,29 +148,12 @@ namespace CGJ2025.Character
 
 		protected virtual void OnUpdate(){}
 
-		// void OnTriggerEnter2D(Collider2D other)
-		// {
-		// 	Debug.Log(other.name);
-		// 	var target = other.GetComponent<Cell>();
-		// 	if (target != null)
-		// 	{	
-		// 		dropCell = target;
-		// 		dropCell.GetComponent<SpriteRenderer>().enabled = true;
-		// 	}
-		// }
-
-		// void OnTriggerExit2D(Collider2D other)
-		// {
-		// 	var target = other.GetComponent<Cell>();
-		// 	if (target != null)
-		// 	{
-		// 		target.GetComponent<SpriteRenderer>().enabled = false;
-		// 		dropCell = null;
-		// 	}
-		// }
-
 		void LateUpdate() {
 			UpdateCollider(skeletonAnimation);
+		}
+
+		void OnDestroy() {
+			App.Instance.HideEffectTip();	
 		}
 
 		protected abstract void InitializeSkeleton();
@@ -181,6 +182,12 @@ namespace CGJ2025.Character
 			{
 				return;
 			}
+
+			if(GenCell != null)
+			{
+				GenCell.OnCharacterRemove();
+				GenCell = null;
+			}
 		}
 
 		protected virtual bool DragCondition(InteractContext context) {return true;}
@@ -199,33 +206,48 @@ namespace CGJ2025.Character
 
 			FollowDragPoint(context.mousePosition);
 			
-			
-			var cellIndex = App.Instance.gameScene.gridSystem.WorldToCell(this.transform.position);
-			if (cellIndex != new Vector2Int(-1, -1))
+			RefreshCell();
+			dropCell = GridSystem.GetCell(this.transform.position + (Vector3)(Vector2.down * new Vector2(0, 4)));
+			if(dropCell != null && dropCell.cellData.cellType != CellType.NotInteract)
 			{
-				if (dropCell != null)
-				{
-					var rend = dropCell.GetComponent<SpriteRenderer>();
-					if (rend) rend.enabled = false;
-				}
-				dropCell = App.Instance.gameScene.gridSystem.groundObj[cellIndex.x, cellIndex.y];
-				if (dropCell != null)
-				{
-					var	rend = dropCell.GetComponent<SpriteRenderer>();
-					if (rend) rend.enabled = true;
-				}
-
+				dropCell.OnCharacterInCell(this);
 			}
-			else
+
+			if(dropCell != null && dropCell.cellData.cellType == CellType.Grass)
 			{
-				if (dropCell != null)
-				{
-					var rend = dropCell.GetComponent<SpriteRenderer>();
-					if (rend) rend.enabled = false;
-				}
-
-				dropCell = null;
+				var skinInfo = characterData.skinInfoList[_skinIndex];
+				App.Instance.ShowEffectTip(context.mousePosition, characterData.elvenName, skinInfo.tipSprite, characterData.effectDescript);
 			}
+		}
+
+		protected virtual void OnCharacterDroped()
+		{
+			if(dropCell == null)
+			{
+				return;
+			}
+
+			dropCell.RefreshCell();
+			dropCell.OnCharacterDroped(this, DropedEffect);
+		}
+
+		protected abstract void DropedEffect();
+
+		public void RefreshCell()
+		{
+			if(dropCell == null)
+			{
+				App.Instance.HideEffectTip();
+				return;
+			}
+
+			if(dropCell.cellData.cellType == CellType.NotInteract || dropCell.cellData.cellType == CellType.Empty)
+			{
+				App.Instance.HideEffectTip();
+			}
+
+			dropCell.RefreshCell();
+			dropCell = null;
 		}
 
 		public void FollowDragPoint(Vector2 mousePosition)

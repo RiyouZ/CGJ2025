@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4764867095712315414}
   - component: {fileID: 695678918217412091}
-  - component: {fileID: 998420797127307849}
   - component: {fileID: 6976833915453285615}
   m_Layer: 0
   m_Name: Scene
@@ -47,28 +46,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18a227af30f307c45add363d7f5c3009, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSystem: {fileID: 998420797127307849}
+  gridSystem: {fileID: 0}
   mouseManager: {fileID: 0}
   timerManager: {fileID: 0}
   interactSystem: {fileID: 0}
   map: {fileID: 0}
---- !u!114 &998420797127307849
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4403588393521996630}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b70bc54d3aac4047991ff5fb072f12e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grid: {fileID: 0}
   tilemap: {fileID: 0}
-  sampleTile: {fileID: 11400000, guid: 2652cae87f439164f9f8f52f6d28d828, type: 2}
-  audioSource: {fileID: 6976833915453285615}
-  grassCellList: 
+  grid: {fileID: 0}
 --- !u!82 &6976833915453285615
 AudioSource:
   m_ObjectHideFlags: 0

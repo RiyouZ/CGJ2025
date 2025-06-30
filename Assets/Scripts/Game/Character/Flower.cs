@@ -28,6 +28,7 @@ namespace CGJ2025.Character
 		public State state = State.Start;
 
 		public float needCatchTime;
+		public float decreaseGenValue;
 
 		[SerializeField] private MouseManager _mouseManager;
 
@@ -39,6 +40,12 @@ namespace CGJ2025.Character
 
 		public AudioClip audioCatchSuccess;
 		public AudioClip audioCatchCharacter;
+
+
+		public override bool IsGrassRepel 
+		{
+			get; set;
+		}
 
 		protected override void OnStart()
         {
@@ -64,6 +71,7 @@ namespace CGJ2025.Character
 				state = State.Start;
 				PlayGrassAudio(audioGen);
 			})
+			.AddAnoTransition("Find", () => state == State.Catching)
 			.AddAnoTransition("Idle", ()=> true, true);
 
 			// 待机
@@ -91,11 +99,6 @@ namespace CGJ2025.Character
 			.OnAnimationStart((_, _) => {
 				PlayAudio(audioCatch);
 				Cursor.visible = false;
-				if(currentCell != null)
-				{
-					currentCell.RemoveCharacte();
-					currentCell = null;
-				}
 			})
 			.AddAnoTransition("Snatch", () => true, true)
 			.AddAnoTransition("Drop", () => state == State.DropSuccess, true)
@@ -113,32 +116,20 @@ namespace CGJ2025.Character
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Drop")
 			.OnAnimationStart((_, _) => 
 			{
+				Cursor.visible = true;
 				PlayAudio(audioDropSccess);
 				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 			})
 			.OnAnimationEnd((_, _) => 
 			{
 				Cursor.visible = true;
-				if(dropCell != null)
-				{
-					dropCell.OnCharacterDroped((Cell)=>
-					{
-						GridSystem.GenerateTime -= GridSystem.GenerateTime * 0.2f;
-					});
-				}
-				Destroy(this.gameObject);
+				OnCharacterDroped();
 			})
 			.OnAnimationComplate((_, _) => 
 			{
+
 				Cursor.visible = true;
-				if(dropCell != null)
-				{
-					dropCell.OnCharacterDroped((Cell)=>
-					{
-						GridSystem.GenerateTime -= GridSystem.GenerateTime * 0.2f;
-					});
-				}
-				Destroy(this.gameObject);
+				OnCharacterDroped();
 			});
 
 			// 释放失败
@@ -161,6 +152,18 @@ namespace CGJ2025.Character
 			skeletonMchine.StartMachine();
 		}
 
+		protected override void DropedEffect()
+		{
+			GridSystem.doubleGenrate = Mathf.Max(1, GridSystem.doubleGenrate + decreaseGenValue);
+		}
+
+		protected override void OnCharacterDroped()
+		{
+			base.OnCharacterDroped();
+			
+			Destroy(this.gameObject);
+		}
+
 		private bool _isMouseHold = false;
 		public override void OnDragBegin(InteractContext context)
 		{
@@ -173,6 +176,11 @@ namespace CGJ2025.Character
 				return;
 			}
 
+			if(!IsGrassRepel)
+			{
+				return;
+			}
+
 			state = State.Catching;
 			PlayOneShot(audioCatchCharacter);
 			gameSortLayer.SortLayerName = LAYER_HOVER;
@@ -181,7 +189,7 @@ namespace CGJ2025.Character
 		public Cell currentCell;
 		 public override void OnCellMouseDown(Cell cell)
         {
-			currentCell = cell;
+
 		}
 
 		protected override bool DragCondition(InteractContext context) 
@@ -194,12 +202,14 @@ namespace CGJ2025.Character
 			if(context.dragTime >= needCatchTime && state == State.Catching)
 			{
 				state = State.CatchSuccess;
+				if(GenCell != null)
+				{
+					GenCell.OnCharacterRemove();
+					GenCell = null;
+				}
 			}
 
-			if(state == State.CatchSuccess)
-			{
-				FollowDragPoint(context.mousePosition);
-			}
+			base.OnDragUpdate(context);
 		}
 
 		public override void OnDragEnd(InteractContext context)
@@ -218,7 +228,7 @@ namespace CGJ2025.Character
 			PlayOneShot(audioCatchSuccess);
 			if(state == State.CatchSuccess)
 			{
-				state = dropCell == null ? State.DropFail : State.DropSuccess; 
+				state = dropCell == null || dropCell.GridIndex == GridSystem.HeadStone ? State.DropFail : State.DropSuccess; 
 			}
 			gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 		}

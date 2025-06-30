@@ -1,8 +1,11 @@
 using CGJ2025.Character;
+using CGJ2025.SceneCell;
 using RuGameFramework;
 using RuGameFramework.Assets;
 using RuGameFramework.Core;
+using RuGameFramework.Event;
 using Sirenix.OdinInspector;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -11,16 +14,18 @@ namespace CGJ2025.System.Grid
 {
     public class GridSystem : MonoBehaviour
 	{
+		public const string EVENT_GRASS_CREADED = "GrassCreated";
+		public const string EVENT_ADD_GEN_GRASS = "AddGenrateGrass";
+
+		public readonly static Vector2Int HeadStone = new Vector2Int(2, 2);
 		public UnityEngine.Grid grid;
-		public Tilemap tilemap;
 		public Tile sampleTile;
 
-		public SceneCell.Cell[ , ] groundObj;
+		public static Tilemap Tilemap;
+		private static Vector3Int OriginPos;
 
-		private Vector3Int originPos;
-
-		private float _width;
-		private float _height;
+		private static float Width;
+		private static float Height;
 
 		public static float GenerateTime = 5;
 		public static float doubleGenrate = 0.01f;
@@ -28,45 +33,143 @@ namespace CGJ2025.System.Grid
 		private static int row;
 		private static int col;
 
+
+		public static SceneCell.Cell[ , ] groundObj;
+
+		public bool[ , ] grassExsit;
+		private readonly static int[ , ] RangeDir = new int[,]
+		{
+			{-1, -1, 0, 1, 1, 1, 0, -1},
+			{0, 1, 1, 1, 0, -1, -1, -1}
+		};
+
+
 		public AudioSource audioSource;
 
 
-		[SerializeField] private List<int> grassCellList;
+		private static List<int> grassCellList;
 
-		public void Initialize (int row, int col, SceneCell.Cell[] cellList)
+		private void Reset()
+		{
+			GenerateTime = 5;
+			doubleGenrate = 0.01f;
+			for (int x = 0; x < row; x++)
+			{
+				for(int y = 0; y < col; y++)
+				{
+					grassExsit[x, y] = false;
+				}	
+			}
+		}
+
+		public void Initialize (int row, int col, UnityEngine.Grid grid, Tilemap tilemap, SceneCell.Cell[] cellList)
 		{
 			GridSystem.row = row;
 			GridSystem.col = col;
+			this.grid = grid;
+			GridSystem.Tilemap = tilemap;
 			groundObj = new SceneCell.Cell[row, col];
 			grassCellList = new List<int>(row * col);
+			grassExsit = new bool[row, col]; 
+
+			
 
 			foreach (SceneCell.Cell cell in cellList)
 			{
-				var index = cell.gridIndex;
+				cell.Initialize(WorldToCell(cell.transform.position));
+				var index = cell.GridIndex;
+				// Debug.Log($"[Initialize] {index}");
 				groundObj[index.x, index.y] = cell;
-				groundObj[index.x, index.y].OnRemoveCharacter = (cell)=>
-				{
-					grassCellList.Add(Index(cell.gridIndex.x, cell.gridIndex.y));
-				};
+				grassExsit[index.x, index.y] = false;
 			}
 
-			originPos = tilemap.cellBounds.min;
+			OriginPos = Tilemap.cellBounds.min;
 
-			_width = tilemap.cellBounds.size.x;
-			_height = tilemap.cellBounds.size.y;
+			Width = Tilemap.cellBounds.size.x;
+			Height = Tilemap.cellBounds.size.y;
 
 			groundObj[0, 0].cellData.cellType = CellType.Grass;
-			groundObj[2, 2].cellData.cellType = CellType.NotInteract;
+			groundObj[HeadStone.x, HeadStone.y].cellData.cellType = CellType.NotInteract;
 
 			grassCellList.Add(Index(0, 0));
 			groundObj[0, 0].CreateGrass();
 
 			audioSource = GetComponent<AudioSource>();
+
+			
+			InitializeEvent();
 		}
 
-		void Start() 
+		private void InitializeEvent()
 		{
-			
+			EventManager.AddListener(EVENT_GRASS_CREADED, OnGrassCreate);
+
+			EventManager.AddListener(EVENT_ADD_GEN_GRASS, OnGenrateGrassAdd);
+		}
+
+		void OnDestroy()
+		{
+			EventManager.RemoveListener(EVENT_GRASS_CREADED, OnGrassCreate);
+			EventManager.RemoveListener(EVENT_ADD_GEN_GRASS, OnGenrateGrassAdd);
+		}
+
+		private void OnGenrateGrassAdd(IGameEventArgs eventArgs)
+		{
+			var args = eventArgs as GridEventArgs;
+			var index = args.genIndex;
+			grassCellList.Add(Index(index.x, index.y));
+		}
+
+		Timer timerGen;
+		Timer timerComplete;
+		private void OnGrassCreate(IGameEventArgs eventArgs)
+		{
+			var args = eventArgs as GridEventArgs;
+			var cell = args.grassCell;
+			if(cell == null)
+			{
+				return;
+			}
+
+			if(!HeadStoneGrassAllExist(cell.GridIndex))
+			{	
+				return;
+			};
+
+			var headstoneCell = groundObj[HeadStone.x, HeadStone.y];
+
+			headstoneCell.CreateGrass();
+			StartCoroutine(AsyncComplete());
+		}
+
+		private IEnumerator AsyncComplete()
+		{
+			yield return new WaitForSeconds(2);
+			App.Instance.Complete();
+			Reset();
+		}
+
+		private bool HeadStoneGrassAllExist(Vector2Int index)
+		{
+			if(grassExsit[index.x, index.y])
+			{
+				return false;
+			}
+
+			grassExsit[index.x, index.y] = true;
+			for(int i = 0; i < 8; i++)
+			{
+				int dx = HeadStone.x + RangeDir[0, i];
+				int dy = HeadStone.y + RangeDir[1, i];
+
+				if(dx < 0 || dx >= row ||dy < 0 || dy >= col)
+				{
+					continue;
+				}
+
+				if(!grassExsit[dx, dy]) return false;;
+			}
+			return true;
 		}
 
 		public static int Index(int x, int y)
@@ -83,9 +186,21 @@ namespace CGJ2025.System.Grid
 		void Update()
 		{
 			lastTime += Time.deltaTime;
-			if(lastTime > GenerateTime)
+			if(lastTime > GenerateTime && !App.IsComplete)
 			{
 				GenrateCharacter();
+
+				float doubleRandom = Random.Range(0, 1f);
+				if(doubleRandom >= doubleGenrate)
+				{
+					GenrateCharacter();
+					GenrateCharacter();
+				}
+				else
+				{
+					GenrateCharacter();
+				}
+
 				lastTime = 0;
 			}
 		}	
@@ -100,27 +215,24 @@ namespace CGJ2025.System.Grid
 			int randomCell = UnityEngine.Random.Range(0, grassCellList.Count);
 			var idx = Index(grassCellList[randomCell]);
 			var cell = groundObj[idx.x, idx.y];
-
-			if (cell == null) return;
 			if (cell.character != null)
 			{
 				return;
 			}
 
-			cell.Shake();
-
-			int randomCharacter = UnityEngine.Random.Range(0, 2);
-			if(randomCharacter == 0)
-			{	
-				cell.AddCharacter(ResManager.Instance.LoadAssets<GameObject>("Character/Rabbit/Character_Rabbit"));
-			}
-			else
+			cell.Shake(()=>
 			{
-				cell.AddCharacter(ResManager.Instance.LoadAssets<GameObject>("Character/Flower/Character_Flower"));
-			}
-
-			cell.StopShake();
-			
+				int randomCharacter = UnityEngine.Random.Range(0, 2);
+				if(randomCharacter == 0)
+				{	
+					cell.AddCharacter(ResManager.Instance.LoadAssets<GameObject>("Character/Rabbit/Character_Rabbit"));
+				}
+				else
+				{
+					cell.AddCharacter(ResManager.Instance.LoadAssets<GameObject>("Character/Flower/Character_Flower"));
+				}
+				cell.StopShake();
+			});
 
 			grassCellList.Remove(grassCellList[randomCell]);
 		}
@@ -137,42 +249,56 @@ namespace CGJ2025.System.Grid
 			return grid.cellSize;
 		}
 
-		public Vector2Int TileIndexToGroundIndex (Vector3Int pos)
+		public static Vector2Int TileIndexToGroundIndex (Vector3Int pos)
 		{
-			var index = new Vector2Int(pos.x - originPos.x, pos.y - originPos.y);
-			if (index.x > 0 || index.x < row || index.y > 0 || index.y < col)
-				return index;
-			else
+			var index = new Vector2Int(pos.x - OriginPos.x, pos.y - OriginPos.y);
+			if (index.x < 0 || index.x >= row || index.y < 0 || index.y >= col)
 				return new Vector2Int(-1, -1);
+			
+			return index;
 		}
-		public Vector3Int GroundIndexToTileIndex (Vector3Int pos)
+		public static Vector3Int GroundIndexToTileIndex (Vector3Int pos)
 		{
-			if (pos.x < 0 || pos.x >= _width || pos.y < 0 || pos.y >= _height)
+			if (pos.x < 0 || pos.x >= Width || pos.y < 0 || pos.y >= Height)
 			{
-				return Vector3Int.zero;
+				return new Vector3Int(-1, -1);
 			}
 
-			return new Vector3Int(originPos.x + pos.x, originPos.y + pos.y, 0);
+			return new Vector3Int(OriginPos.x + pos.x, OriginPos.y + pos.y, 0);
 		}
 
-		public Vector2Int WorldToCell (Vector3 worldPos)
+		public static Vector2Int WorldToCell (Vector3 worldPos)
 		{
-			var tilePos = tilemap.WorldToCell(worldPos);
+			var tilePos = Tilemap.WorldToCell(worldPos);
 			return TileIndexToGroundIndex(tilePos);
 		}
 
-		public Vector3 CellToWorld (Vector3Int cellPos)
+		public static Vector3 CellToWorld (Vector3Int cellPos)
 		{
 			var tileIndex = GroundIndexToTileIndex(cellPos);
-			return tilemap.CellToWorld(tileIndex);
+			return Tilemap.CellToWorld(tileIndex);
 		}
+
+		public static Cell GetCell(Vector3 pos)
+		{
+			Vector2Int cellIndex = WorldToCell(pos);
+			if(cellIndex == new Vector2Int(-1, -1))
+			{
+				return null;
+			}
+
+			var cell = groundObj[cellIndex.x, cellIndex.y];
+			return cell;
+		}
+
+
 
 
 #if UNITY_EDITOR
 		[Button]
 		public void SetOrigin ()
 		{
-			tilemap.transform.position = -tilemap.CellToWorld(new Vector3Int(tilemap.cellBounds.min.x, tilemap.cellBounds.min.y, 0));
+			Tilemap.transform.position = -Tilemap.CellToWorld(new Vector3Int(Tilemap.cellBounds.min.x, Tilemap.cellBounds.min.y, 0));
 		}
 
 		[Button]

@@ -137,17 +137,17 @@ namespace CGJ2025.System.Grass
             return true;
         }
         private IEnumerator shakeInst = null;
-        public bool StartShaking()
+        public bool StartShaking(int count, Action onShakeEnd = null)
         {
             if (HasGenerated == false) return false;
             if (shakeInst != null) StopCoroutine(shakeInst);
-            shakeInst = ShakeCoroutine() as IEnumerator;
+            shakeInst = ShakeCoroutine(count, onShakeEnd) as IEnumerator;
             StartCoroutine(shakeInst);
             return true;
         }
         public void StopShaking() => StopCoroutine(shakeInst);
 
-        IEnumerator ShakeCoroutine()
+        IEnumerator ShakeCoroutine(int count, Action onShakeEnd = null)
         {
             while (true)
             {
@@ -160,7 +160,13 @@ namespace CGJ2025.System.Grass
                 });
                 yield return new WaitForSeconds(shakeDuration);
                 shakeAngle = 0;
-                yield return new WaitForSeconds(shakeInterval);
+                count--;
+                if(count > 0 || count == -1)
+                {
+                    yield return new WaitForSeconds(shakeInterval);
+                }
+                onShakeEnd?.Invoke();
+                yield break;
             }
         }
         

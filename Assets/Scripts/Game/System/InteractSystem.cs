@@ -54,7 +54,7 @@ namespace CGJ2025.System.Interact
             if(Input.GetMouseButtonDown(0) && CurrentObject != null)
             {
                 currentInteractObj = CurrentObject.GetComponent<IInteractable>();
-                if(currentInteractObj != null)
+                if(currentInteractObj != null || currentInteractObj.InteractObject!= null)
                 {
                     _context.mousePosition = mouseManager.WorldPosition;
                     _context.dragTime = _dragTime;
@@ -65,7 +65,7 @@ namespace CGJ2025.System.Interact
 
             if(_isDraging && Input.GetMouseButtonUp(0))
             {
-                if(currentInteractObj != null)
+                if(currentInteractObj != null || currentInteractObj.InteractObject!= null)
                 {
                     _context.mousePosition = mouseManager.WorldPosition;
                     _dragTime += Time.deltaTime;
@@ -75,12 +75,16 @@ namespace CGJ2025.System.Interact
                     currentInteractObj = null;
                 }
                 _isDraging = false;
-            }else if(_isDraging)
+            }else if(_isDraging && currentInteractObj != null)
             {
                 _context.mousePosition = mouseManager.WorldPosition;
                 _dragTime += Time.deltaTime;
                 _context.dragTime = _dragTime;
-                currentInteractObj.OnDragUpdate(_context);
+
+                if(currentInteractObj != null || currentInteractObj.InteractObject!= null)
+                {
+                    currentInteractObj.OnDragUpdate(_context);
+                }
             }
         }
     }

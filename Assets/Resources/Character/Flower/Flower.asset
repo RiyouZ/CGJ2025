@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f29b80ea2992a9d48baa5ce2bd12c0c1, type: 3}
   m_Name: Flower
   m_EditorClassIdentifier: 
+  elvenName: "\u96CF\u83CA\u7CBE\u7075"
+  effectDescript: "1.\u653E\u5165\u7A7A\u5730\u6269\u5C55\u82B1\u5706\n2.\u6216\u91CD\u65B0\u653E\u5165\u82B1\u8349\u4EE5\u589E\u52A0\u540C\u65F6\u5B55\u80B2\u51FA\u4E24\u53EA\u7CBE\u7075\u6982\u7387"
   skeletonData: {fileID: 11400000, guid: da07add775bb6f24684ecd52e11a5a65, type: 2}
+  skinInfoList:
+  - tipSprite: {fileID: 21300000, guid: bf9f534c3dcf6434a8df6c3e1dd46f88, type: 3}
+    skinName: White
+  - tipSprite: {fileID: 21300000, guid: ca6d8bd786d622b4091bc9a2f5183287, type: 3}
+    skinName: Black
   dragCondition: {fileID: 0}

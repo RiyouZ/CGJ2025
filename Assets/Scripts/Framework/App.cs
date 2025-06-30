@@ -6,14 +6,21 @@ using UnityEngine;
 using RuGameFramework.Mono;
 using CGJ2025.Scene;
 using RuGameFramework.Scene;
+using CGJ2025.UI.Tip;
+using RuGameFramework.Event;
+using CGJ2025.UI;
+using CGJ2025.SceneCell;
 
 namespace RuGameFramework
 {
 	public class App : MonoBehaviour
 	{
+		public const string EVENT_GAME_COMPLETE = "GameComplete";
+
 		public static readonly float SampleRate = 0.016f;
 		private static string GameUIPath = "UI/GameUI";
 
+		public static bool IsComplete;
 		private static App _instance;
 		public static App Instance => _instance;
 
@@ -29,9 +36,17 @@ namespace RuGameFramework
 
 		private Timer timer;
 
-		public GameScene gameScene;
-
 		public List<Texture2D> cursorTexList = new List<Texture2D>();
+
+		public Transform GameUI;
+		public Transform titleCanvas;
+		public Transform endCanvas;
+		public TipCanvas tipCanvas;
+		public CountCanvas countCanvas;
+		public Transform taskCanvas;
+		public Camera uiCamera;
+
+		private static readonly Vector3 OutScreen = new Vector3(Screen.width * 2, Screen.height * 2, 0);
 
 		void Awake ()
 		{
@@ -46,13 +61,13 @@ namespace RuGameFramework
 
 			DontDestroyOnLoad(this);
 
-			Application.targetFrameRate = 60;
+			Application.targetFrameRate = 120;
 			OnGameStartInit();
 		}
 
 		void Start ()
 		{
-
+			
 		}
 
 		public void ChangeCursorDefault()
@@ -62,11 +77,24 @@ namespace RuGameFramework
 			Cursor.SetCursor(tex, hotspot, CursorMode.Auto);
 		}
 
-		public void ChangeCursorHold()
+		public void Restart()
 		{
-			Texture2D tex = cursorTexList[0];
-			Vector2 hotspot = new Vector2(tex.width / 2f, tex.height / 2f);
-			Cursor.SetCursor(tex, hotspot, CursorMode.Auto);
+			IsComplete = false;
+			endCanvas.gameObject.SetActive(false);
+			UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+		}
+
+		public void Complete()
+		{
+			IsComplete = true;
+			Cursor.visible = true;
+			endCanvas.gameObject.SetActive(true);
+			EventManager.InvokeEvent(EVENT_GAME_COMPLETE, null);
+		}
+
+		public void Quit()
+		{
+			Application.Quit();
 		}
 
 		private void OnGameStartInit ()
@@ -75,13 +103,56 @@ namespace RuGameFramework
 
 			TimerManager.StartSchedule(TimerManager.TimeType.RealTimeSinceStartUp, SampleRate);
 			
+			AddDontDestroyList(GameUI.gameObject);
 			// RuUI.CreateGameUI(new ResAssetLoadAdapter(this), GameUIPath, OnCreateGameUI);
 			ChangeCursorDefault();
 		}
 
-		private void OnCreateGameUI (GameObject uiObj)
+		public void ShowEffectTip(Vector3 mousePos, string name, Sprite sprite, string desc)
 		{
-			
+			Vector3 screenPos = MouseManager.MousePosition;
+
+			Vector2 localPoint;
+			if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+				tipCanvas.transform.parent.transform as RectTransform,
+				screenPos,
+				uiCamera,
+				out localPoint))
+			{
+				tipCanvas.rectTransform.anchoredPosition = localPoint + Vector2.right * tipCanvas.offset;
+			}
+			tipCanvas.SetData(name,sprite, desc);
+
+		}
+
+		public void HideEffectTip()
+		{
+			if(tipCanvas == null)
+			{
+				return;
+			}
+			tipCanvas.rectTransform.anchoredPosition = (Vector2)OutScreen;
+		}
+
+		public void ShowCountTip(Cell cell)
+		{	
+			(countCanvas.transform as RectTransform).anchoredPosition = Vector2.zero;
+			countCanvas.UpdateData(cell.rabbitCnt, cell.flowerCnt);
+		}
+
+		public void HideCountTip()
+		{
+			if(countCanvas == null)
+			{
+				return;
+			}
+
+			if((countCanvas.transform as RectTransform).anchoredPosition == (Vector2)OutScreen)
+			{
+				return;
+			}
+
+			(countCanvas.transform as RectTransform).anchoredPosition = (Vector2)OutScreen;
 		}
 
 		private void InitManager ()
@@ -106,11 +177,17 @@ namespace RuGameFramework
 
 		public void LoadGameScene()
 		{
-			SceneManager.LoadSceneAsync("GameScene", null, () =>
+			SceneManager.LoadSceneAsync("GameScene", null, ()=>
 			{
-				gameScene = GameObject.Find("Scene").GetComponent<GameScene>();
+				IsComplete = false;
+				countCanvas.gameObject.SetActive(true);
+				countCanvas.Initialization();
+				titleCanvas.gameObject.SetActive(false);
+				taskCanvas.gameObject.SetActive(true);
+				tipCanvas.gameObject.SetActive(true);
+				tipCanvas.Initialize();
+				tipCanvas.rectTransform.anchoredPosition = OutScreen;
 			});
-
 		}
 
 		public void AddDontDestroyList (GameObject obj)

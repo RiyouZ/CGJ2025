@@ -21,6 +21,8 @@ namespace CGJ2025.Scene
 		public TimerManager timerManager;
 		public InteractSystem interactSystem;
 		public Transform map;
+		public Tilemap tilemap;
+		public Grid grid;
 
 		void Start ()
 		{
@@ -46,11 +48,10 @@ namespace CGJ2025.Scene
 			{
 				gridSystem = gameObject.AddComponent<GridSystem>();
 			}
-			gridSystem.grid = GameObject.FindObjectOfType<Grid>();
-			gridSystem.tilemap = FindObjectOfType<Tilemap>();
 
-			var cellList = map.GetComponentsInChildren<Cell>();
-			gridSystem.Initialize(5, 5, cellList);
+			var cellList = tilemap.GetComponentsInChildren<Cell>();
+			gridSystem.Initialize(5, 5, grid, tilemap, cellList);
+
 
 			interactSystem = gameObject.GetComponent<InteractSystem>();
 			if (interactSystem == null)
@@ -62,19 +63,18 @@ namespace CGJ2025.Scene
 
 		public void Update ()
 		{
-			MouseSelectUpdate();
+			if(App.IsComplete)return;
 			interactSystem.DragUpdate();
-		}
 
-		private void MouseSelectUpdate ()
-		{
-			var selectObject = mouseManager.CurrentObject;
-			if (selectObject == null)
+			var cell = GridSystem.GetCell(mouseManager.WorldPosition + (Vector3)(Vector2.down * new Vector2(0, 4)));
+			if(cell == null || cell.cellData.cellType == CellType.NotInteract)
 			{
-				return;
+				App.Instance.HideCountTip();
+			}else
+			{
+				App.Instance.ShowCountTip(cell);
 			}
 		}
-
 	}
 
 }

@@ -12,5 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f29b80ea2992a9d48baa5ce2bd12c0c1, type: 3}
   m_Name: Rabbit
   m_EditorClassIdentifier: 
+  elvenName: "\u5154\u7CBE\u7075"
+  effectDescript: "1.\u653E\u5165\u7A7A\u5730\u6269\u5C55\u82B1\u56ED\n2.\u6216\u91CD\u65B0\u653E\u5165\u82B1\u8349\u4EE5\u51CF\u5C11\u7CBE\u7075\u5B55\u80B2\u65F6\u95F4"
   skeletonData: {fileID: 11400000, guid: 49d9fe6f78433f14fb9a479f05b8b867, type: 2}
+  skinInfoList:
+  - tipSprite: {fileID: 21300000, guid: 87ad11b112818ba4b8e8330b6485dfdb, type: 3}
+    skinName: Black
+  - tipSprite: {fileID: 21300000, guid: 833787c689be19d468d0d7d43e0892a0, type: 3}
+    skinName: Grey
+  - tipSprite: {fileID: 21300000, guid: 2fad3993d8037014db61a05be6f7a20e, type: 3}
+    skinName: White
   dragCondition: {fileID: 0}

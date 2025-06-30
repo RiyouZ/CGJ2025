@@ -6,15 +6,27 @@ using RuGameFramework;
 using RuGameFramework.Input;
 using CGJ2025.Character;
 using System;
+using RuGameFramework.Event;
+using CGJ2025.System;
 
 namespace CGJ2025.SceneCell
 {
 	public class Cell : MonoBehaviour
 	{
-		public Vector2Int gridIndex;
+		private Vector2Int _gridIndex;
+		public Vector2Int GridIndex
+		{
+			get
+			{
+				return _gridIndex;
+			}
+		}
+
 		public GrassSystem grassSystem;
 		public List<GameObject> plantList;
 		public MouseManager mouseManager;
+
+		public SpriteRenderer sprite;
 
 		public CellData cellData = new CellData();
 		public ICharacter character;
@@ -23,9 +35,20 @@ namespace CGJ2025.SceneCell
 
 		public Action OnRepel;
 
+		public int rabbitCnt;
+		public int flowerCnt;
+
 		public void Awake()
 		{
-			gridIndex = GameObject.Find("Scene").GetComponent<GridSystem>().WorldToCell(this.transform.position);
+
+			
+		}
+
+		public void Initialize(Vector2Int gridIndex)
+		{
+			this._gridIndex = gridIndex;
+
+			this.gameObject.name = $"{this.gameObject.name}_{GridIndex}";
 
 			grassSystem = GetComponentInChildren<GrassSystem>();
 			
@@ -41,12 +64,23 @@ namespace CGJ2025.SceneCell
 			{
 				grassSystem = gameObject.AddComponent<GrassSystem>();
 			}
+
+			if(sprite == null)
+			{
+				sprite = GetComponent<SpriteRenderer>();
+			}
 			
 			grassSystem._mouseManager = mouseManager;
+
 			m_collider2D = GetComponent<Collider2D>();
-
 			grassSystem.OnStartRepel += OnGrassRepel;
+			grassSystem.OnEndRepel += OnGrassRepelEnd;
+		}
 
+		void OnDestroy()
+		{
+			grassSystem.OnStartRepel -= OnGrassRepel;
+			grassSystem.OnEndRepel -= OnGrassRepelEnd;
 		}
 
 		public void OnGrassRepel()
@@ -54,6 +88,14 @@ namespace CGJ2025.SceneCell
 			if(character != null)
 			{
 				character.OnCellMouseDown(this);
+			}
+		}
+
+		public void OnGrassRepelEnd()
+		{
+			if(character != null)
+			{
+				character.IsGrassRepel = true;
 			}
 		}
 
@@ -71,15 +113,64 @@ namespace CGJ2025.SceneCell
             }
         }
 
+		public void OnCharacterInCell(ICharacter character)
+		{
+			if(cellData.cellType == CellType.Empty && sprite.enabled == false)
+			{
+				sprite.enabled = true;
+			}
+		}
+
+		public void OnCharacterDroped(ICharacter character, Action onDroped)
+		{
+			if(cellData.cellType != CellType.NotInteract)
+			{
+				if(character is Rabbit)
+				{
+					rabbitCnt++;
+				}
+				else
+				{
+					flowerCnt++;
+				}
+			}
+			
+			if(cellData.cellType == CellType.Empty)
+			{
+				CreateGrass();
+				return;
+			}
+
+			onDroped?.Invoke();
+		}
+
+		public void RefreshCell()
+		{
+			if(cellData.cellType == CellType.Empty && sprite.enabled == true)
+			{
+				sprite.enabled = false;
+			}
+		}
+
 		public void CreateGrass()
 		{
+			cellData.cellType = CellType.Grass;
 			grassSystem.GenerateGrass();
-			OnRemoveCharacter?.Invoke(this);
+			var args = new GridEventArgs()
+			{
+				grassCell = this,
+				genIndex = GridIndex
+			};
+
+			EventManager.InvokeEvent(GridSystem.EVENT_GRASS_CREADED, args);
+
+			EventManager.InvokeEvent(GridSystem.EVENT_ADD_GEN_GRASS, args);
 		}
 
 		public void AddCharacter(GameObject character, Action callback = null)
 		{
 			this.character = character.GetComponent<ICharacter>();
+			this.character.GenCell = this;
 			float randomRangeX = 3f;
 			float randomRangeY = 0.8f;
 			Vector3 pos;
@@ -95,29 +186,25 @@ namespace CGJ2025.SceneCell
 
 		public Action<Cell> OnRemoveCharacter;
 
-		public void RemoveCharacte()
+		public void OnCharacterRemove()
 		{
-			OnRemoveCharacter?.Invoke(this);
 			character = null;
-		}
-
-		public void OnCharacterDroped(Action<Cell> onDroped)
-		{
-			if(cellData.cellType == CellType.Empty)
+			EventManager.InvokeEvent(GridSystem.EVENT_ADD_GEN_GRASS, new GridEventArgs()
 			{
-				CreateGrass();
-				return;
-			}
-			onDroped?.Invoke(this);
+				genIndex = GridIndex
+			});
 		}
 
-		public void Shake()
+		public void Shake(Action onShakeEnd)
 		{
 			if(cellData.cellType != CellType.Grass)
 			{
 				return;
 			}
-			grassSystem.StartShaking();
+
+			int random = UnityEngine.Random.Range(1, 3);
+
+			grassSystem.StartShaking(random, onShakeEnd);
 		}
 
 		public void StopShake()

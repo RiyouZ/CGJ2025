@@ -25,6 +25,7 @@ namespace CGJ2025.Character
 
         public State state;
 		public float escapeTime;
+		public float genEffectPercent;
 
 		[SerializeField] private bool _canCatch = false;
 		[SerializeField] private bool _canDrop;
@@ -42,6 +43,12 @@ namespace CGJ2025.Character
 		private Timer _timer;
 
 		[SerializeField] private MouseManager _mouseManager;
+
+        public override bool IsGrassRepel 
+		{
+			get;
+			set;
+		}
 
         protected override void OnStart()
         {
@@ -75,11 +82,6 @@ namespace CGJ2025.Character
 			fSM.RegisterState(State.Catch)
 				.OnEnter((fsmState)=>
 				{
-					if(currentCell != null)
-					{
-						currentCell.RemoveCharacte();
-						currentCell = null;
-					}
 					_isEscape = false;
 					_isWrong = false;
 					skeletonMchine.PlayTrackAnimation("Snatch_in");
@@ -122,7 +124,7 @@ namespace CGJ2025.Character
 				else PlayAudio(audioFind2);
 				_canCatch = true;
 			})
-			.OnAnimationComplate((_, _) => CharacterDestroy())
+			.OnAnimationComplate((_, _) => OnCharacterEscape())
 			.AddAnoTransition("Snatch_in", ()=>
 			{
 				return state == State.Catch && !_isEscape;
@@ -133,10 +135,7 @@ namespace CGJ2025.Character
 			.OnAnimationStart((_, _) => {
 				Cursor.visible = false;
 				PlayAudio(audioCatch);
-			})
-			.OnAnimationEnd((_, _) => {
-				// Cursor.visible = true;
-			})			
+			})		
 			.AddAnoTransition("Snatch", () => true, true)
 			.AddAnoTransition("Drop", () => state == State.DropSuccess)
 			.AddAnoTransition("Wrong_in", () => state == State.DropFail);
@@ -154,16 +153,17 @@ namespace CGJ2025.Character
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Drop")
 			.OnAnimationStart((_, _) => 
 			{
+				Cursor.visible = true;
 				PlayAudio(audioDropSccess);
 				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 			})
 			.OnAnimationEnd((_, _) => 
 			{
-				CharacterDestroy();
+				OnCharacterDroped();
 			})
 			.OnAnimationComplate((_, _) =>
 			{
-				CharacterDestroy();
+				OnCharacterDroped();
 			});
 
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Wrong_in")
@@ -189,15 +189,24 @@ namespace CGJ2025.Character
 			skeletonMchine.StartMachine();
 		}
 
-		public void CharacterDestroy()
+		private void OnCharacterEscape()
 		{
-			if(dropCell != null)
+			if(GenCell != null)
 			{
-				dropCell.OnCharacterDroped((Cell)=>
-				{
-					GridSystem.GenerateTime -= GridSystem.GenerateTime * 0.2f;
-				});
+				GenCell.OnCharacterRemove();
 			}
+			Destroy(this.gameObject);
+		}
+
+        protected override void DropedEffect()
+        {
+            GridSystem.GenerateTime -= Mathf.Min(0,GridSystem.GenerateTime * genEffectPercent);
+        }
+
+		// 掉落事件
+        protected override void OnCharacterDroped()
+		{
+			base.OnCharacterDroped();
 			Destroy(this.gameObject);
 		}
 
@@ -212,16 +221,13 @@ namespace CGJ2025.Character
 		public override void OnDragBegin(InteractContext context)
 		{
 			base.OnDragBegin(context);
-			if(_canCatch)
-			{
-				state = State.Catch;
-				onshotAudio.PlayOneShot(audioCatchSuccess);
 
-				var random = UnityEngine.Random.Range(0, 2);
-				if (random == 0) PlayGrassAudio(audioRepel); 
-				else PlayGrassAudio(audioRepel);
-			}
+			state = State.Catch;
+			onshotAudio.PlayOneShot(audioCatchSuccess);
 
+			var random = UnityEngine.Random.Range(0, 2);
+			if (random == 0) PlayGrassAudio(audioRepel); 
+			else PlayGrassAudio(audioRepel);
 			gameSortLayer.SortLayerName = LAYER_HOVER;
 		}
 
@@ -229,7 +235,7 @@ namespace CGJ2025.Character
 		{
 			base.OnDragEnd(context);
 
-			if(dropCell != null)
+			if(dropCell != null && dropCell.GridIndex != GridSystem.HeadStone)
 			{
 				DropSuccess(dropCell);
 			}
@@ -237,13 +243,11 @@ namespace CGJ2025.Character
 			{
 				DropFail();
 			}
-
-			dropCell = null;
 		}
 
 		protected override bool DragCondition(InteractContext context) 
 		{
-			return _canCatch == true;
+			return _canCatch == true && IsGrassRepel;
 		}
 
 		public void DropSuccess(Cell dropCell)
@@ -256,12 +260,8 @@ namespace CGJ2025.Character
 			state = State.DropFail;
 		}
 
-		public Cell currentCell;
-
         public override void OnCellMouseDown(Cell cell)
         {
-			currentCell = cell;
-
 			state = State.Find;
 			_isEscape = false;
 			_timer = timerManager.SetTimeout((deltaTime)=>

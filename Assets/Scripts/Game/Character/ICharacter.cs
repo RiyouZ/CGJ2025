@@ -7,6 +7,16 @@ namespace CGJ2025.Character
 {
     public interface ICharacter
     {
+        public Cell GenCell
+        {
+            set; get;
+        }
+
+        public bool IsGrassRepel
+        {
+            set; get;
+        }
+
         public GameObject CharacteObject
         {
             get;
