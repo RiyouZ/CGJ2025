@@ -97,7 +97,7 @@ namespace CGJ2025.System.Grid
 			groundObj[0, 0].CreateGrass();
 
 			audioSource = GetComponent<AudioSource>();
-			lastTime = 7f;
+			lastTime = 4f;
 			InitializeEvent();
 		}
 
@@ -105,20 +105,22 @@ namespace CGJ2025.System.Grid
 		{
 			EventManager.AddListener(EVENT_GRASS_CREADED, OnGrassCreate);
 
-			EventManager.AddListener(EVENT_ADD_GEN_GRASS, OnGenrateGrassAdd);
+			EventManager.AddListener(EVENT_ADD_GEN_GRASS, OnGenerateGrassAdd);
 		}
 
 		void OnDestroy()
 		{
 			EventManager.RemoveListener(EVENT_GRASS_CREADED, OnGrassCreate);
-			EventManager.RemoveListener(EVENT_ADD_GEN_GRASS, OnGenrateGrassAdd);
+			EventManager.RemoveListener(EVENT_ADD_GEN_GRASS, OnGenerateGrassAdd);
 		}
 
-		private void OnGenrateGrassAdd(IGameEventArgs eventArgs)
+		private void OnGenerateGrassAdd(IGameEventArgs eventArgs)
 		{
 			var args = eventArgs as GridEventArgs;
 			var index = args.genIndex;
 			grassCellList.Add(Index(index.x, index.y));
+			//Debug.Log("OnGenerateGrassAdd: " + grassCellList.Count);
+
 		}
 
 		Timer timerGen;
@@ -196,31 +198,35 @@ namespace CGJ2025.System.Grid
 			return new Vector2Int(index % col, index / col);
 		}
 
-		private float lastTime = 7f;
+		private float lastTime = 4f;
 		void Update()
 		{
 			lastTime += Time.deltaTime;
-			if(lastTime > GenerateTime && !App.IsComplete)
+			if (lastTime > GenerateTime && !App.IsComplete)
 			{
+
 				float doubleRandom = Random.Range(0, 1f);
-				if(doubleRandom < doubleGenrate)
+				if (doubleRandom < doubleGenrate)
 				{
-					GenrateCharacter();
-					GenrateCharacter();
+					GenerateCharacter();
+					GenerateCharacter();
 				}
 				else
 				{
-					GenrateCharacter();
+					GenerateCharacter();
 				}
+				//Debug.Log(lastTime + " " + GenerateTime + " " + doubleRandom + " " + doubleGenrate);
 
 				lastTime = 0;
 			}
 		}	
 
-		public void GenrateCharacter()
+		public void GenerateCharacter()
 		{
-			if(grassCellList.Count <= 0)
+			if (grassCellList.Count <= 0)
 			{
+				//Debug.LogWarning("grassCellList.Count <= 0");
+
 				return;
 			}
 
@@ -229,14 +235,16 @@ namespace CGJ2025.System.Grid
 			var cell = groundObj[idx.x, idx.y];
 			if (cell.character != null)
 			{
+				//Debug.LogWarning("cell.character != null");
+
 				return;
 			}
 
 			cell.Shake(()=>
 			{
 				int randomCharacter = UnityEngine.Random.Range(0, 2);
-				if(randomCharacter == 0)
-				{	
+				if (randomCharacter == 0)
+				{
 					cell.AddCharacter(ResManager.Instance.LoadAssets<GameObject>("Character/Rabbit/Character_Rabbit"));
 				}
 				else
@@ -244,9 +252,10 @@ namespace CGJ2025.System.Grid
 					cell.AddCharacter(ResManager.Instance.LoadAssets<GameObject>("Character/Flower/Character_Flower"));
 				}
 				cell.StopShake();
+				grassCellList.Remove(grassCellList[randomCell]);
+				//Debug.Log("grassCellList Remove: " + randomCell + " now "+ grassCellList.Count);
 			});
 
-			grassCellList.Remove(grassCellList[randomCell]);
 		}
 
 		public Vector3 CalcultorCellSize ()

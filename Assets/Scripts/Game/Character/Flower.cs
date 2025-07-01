@@ -165,7 +165,7 @@ namespace CGJ2025.Character
 
 		protected override void DropedEffect()
 		{
-			GridSystem.doubleGenrate = Mathf.Max(0.5f, GridSystem.doubleGenrate + increaseDoubleGenValue);
+			GridSystem.doubleGenrate = Mathf.Min(0.5f, GridSystem.doubleGenrate + increaseDoubleGenValue);
 		}
 
 		protected override void OnCharacterDroped()
