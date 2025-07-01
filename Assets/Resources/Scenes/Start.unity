@@ -795,7 +795,7 @@ MonoBehaviour:
   timeScale: 1
   freeze: 0
   layoutScaleMode: 0
-  referenceSize: {x: 3839.9998, y: 2159.9998}
+  referenceSize: {x: 3840.0002, y: 2160}
   pivotOffset: {x: 0, y: 0}
   referenceScale: 1
   layoutScale: 1
@@ -3243,7 +3243,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 72
-  m_Text: "\u2022\u62EF\u6551\u5B64\u72EC\u7684\u5893\u7891\uFF08\u79CD\u6EE1\u5468\u56F4\u7684\u5730\u5757\uFF09"
+  m_Text: "\u2022\u7ED9\u5B64\u72EC\u7684\u5893\u7891\u4E00\u70B9\u751F\u673A\uFF08\u79CD\u6EE1\u6574\u4E2A\u82B1\u56ED\uFF09"
 --- !u!114 &2924477979805349073
 MonoBehaviour:
   m_ObjectHideFlags: 0

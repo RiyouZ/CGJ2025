@@ -135,7 +135,7 @@ MonoBehaviour:
   gameSortLayer: {fileID: 0}
   state: 0
   escapeTime: 2
-  genEffectPercent: 0.02
+  genEffectPercent: 0.1
   _canCatch: 0
   _canDrop: 0
   _isEscape: 0

@@ -211,7 +211,7 @@ namespace CGJ2025.Character
 
         protected override void DropedEffect()
         {
-            GridSystem.GenerateTime -= Mathf.Min(1, GridSystem.GenerateTime * genEffectPercent);
+            GridSystem.GenerateTime = Mathf.Max(1, GridSystem.GenerateTime - GridSystem.GenerateTime * genEffectPercent);
         }
 
 		// 掉落事件

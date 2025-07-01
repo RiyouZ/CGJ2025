@@ -27,8 +27,8 @@ namespace CGJ2025.System.Grid
 		private static float Width;
 		private static float Height;
 
-		public static float GenerateTime = 5f;
-		public static float doubleGenrate = 0.01f;
+		public static float GenerateTime = 8f;
+		public static float doubleGenrate = 0.00f;
 
 		private static int row;
 		private static int col;
@@ -51,14 +51,15 @@ namespace CGJ2025.System.Grid
 
 		private void Reset()
 		{
-			GenerateTime = 5;
-			doubleGenrate = 0.01f;
+			GenerateTime = 8;
+			doubleGenrate = 0.00f;
+			lastTime = 5;
 			for (int x = 0; x < row; x++)
 			{
-				for(int y = 0; y < col; y++)
+				for (int y = 0; y < col; y++)
 				{
 					grassExsit[x, y] = false;
-				}	
+				}
 			}
 		}
 
@@ -96,8 +97,7 @@ namespace CGJ2025.System.Grid
 			groundObj[0, 0].CreateGrass();
 
 			audioSource = GetComponent<AudioSource>();
-
-			
+			lastTime = 7f;
 			InitializeEvent();
 		}
 
@@ -196,16 +196,14 @@ namespace CGJ2025.System.Grid
 			return new Vector2Int(index % col, index / col);
 		}
 
-		private float lastTime;
+		private float lastTime = 7f;
 		void Update()
 		{
 			lastTime += Time.deltaTime;
 			if(lastTime > GenerateTime && !App.IsComplete)
 			{
-				GenrateCharacter();
-
 				float doubleRandom = Random.Range(0, 1f);
-				if(doubleRandom >= doubleGenrate)
+				if(doubleRandom < doubleGenrate)
 				{
 					GenrateCharacter();
 					GenrateCharacter();
