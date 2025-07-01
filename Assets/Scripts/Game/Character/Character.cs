@@ -213,7 +213,7 @@ namespace CGJ2025.Character
 				dropCell.OnCharacterInCell(this);
 			}
 
-			if(dropCell != null && dropCell.cellData.cellType == CellType.Grass)
+			if(dropCell != null)
 			{
 				var skinInfo = characterData.skinInfoList[_skinIndex];
 				App.Instance.ShowEffectTip(context.mousePosition, characterData.elvenName, skinInfo.tipSprite, characterData.effectDescript);

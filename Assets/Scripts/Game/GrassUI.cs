@@ -56,7 +56,7 @@ public class GrassUI : MonoBehaviour
 
             Vector3 rootWorld = renderer.transform.position;
             Vector2 toMouse = _mouseManager.WorldPosition - rootWorld;
-            float dist = toMouse.magnitude;
+            float dist = toMouse.magnitude / 10f;
             float influence = Mathf.Exp(-dist * repelInfluence);
             float side = Mathf.Sign(toMouse.x);
             float targetAngle = side * influence * repelMaxAngle;

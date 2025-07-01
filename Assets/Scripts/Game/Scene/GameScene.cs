@@ -66,6 +66,11 @@ namespace CGJ2025.Scene
 			if(App.IsComplete)return;
 			interactSystem.DragUpdate();
 
+			if (!interactSystem._isDraging)
+			{
+				App.Instance.HideCountTip();
+				return;
+			}
 			var cell = GridSystem.GetCell(mouseManager.WorldPosition + (Vector3)(Vector2.down * new Vector2(0, 4)));
 			if(cell == null || cell.cellData.cellType == CellType.NotInteract)
 			{

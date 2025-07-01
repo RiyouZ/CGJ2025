@@ -135,6 +135,7 @@ MonoBehaviour:
   gameSortLayer: {fileID: 0}
   state: 0
   escapeTime: 2
+  genEffectPercent: 0
   _canCatch: 0
   _canDrop: 0
   _isEscape: 0
@@ -142,11 +143,13 @@ MonoBehaviour:
   audioFind: {fileID: 8300000, guid: 47667fb94f4eb9f41a0b9256589f9706, type: 3}
   audioFind2: {fileID: 8300000, guid: f374467c957eb194f82795a052dd0c2e, type: 3}
   audioCatch: {fileID: 8300000, guid: 077c06f98ba7bf247ad431b96b8a77e0, type: 3}
+  audioCatch2: {fileID: 8300000, guid: f233ec1d09d43cb44bbf84e6c7a2654f, type: 3}
   audioDropSccess: {fileID: 8300000, guid: c708b4ba2df0159408898a1f9662e094, type: 3}
+  audioDropSccess2: {fileID: 8300000, guid: 124f39b079934e7428bc7d6c80415255, type: 3}
+  audioDropSccess3: {fileID: 8300000, guid: e5791931a52c31c4da53299ad6388e3e, type: 3}
   audioDropFail: {fileID: 8300000, guid: 4c03070b1a88a734cb6a6e117ba0525a, type: 3}
   audioCatchSuccess: {fileID: 8300000, guid: dd05a604edf865d46bf6f3e789b8324a, type: 3}
   _mouseManager: {fileID: 0}
-  currentCell: {fileID: 0}
 --- !u!82 &2222695728698319391
 AudioSource:
   m_ObjectHideFlags: 0

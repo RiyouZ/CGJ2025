@@ -280,11 +280,14 @@ MonoBehaviour:
   gameSortLayer: {fileID: 0}
   state: 0
   needCatchTime: 1
+  decreaseGenValue: 0
   _mouseManager: {fileID: 0}
   audioFind: {fileID: 8300000, guid: 121d32d466371de45959f788fede0f5c, type: 3}
   audioFind2: {fileID: 8300000, guid: 297dec079e4c741429810987d595df5e, type: 3}
   audioCatch: {fileID: 8300000, guid: 027808211a9c91c4695b9a1a10378333, type: 3}
-  audioDropSccess: {fileID: 8300000, guid: 46f5ff9e81c0d194586dd344c73e2898, type: 3}
+  audioCatch2: {fileID: 8300000, guid: feee3de43a4032642a3bc17c7d261f1f, type: 3}
+  audioDropSccess: {fileID: 8300000, guid: a54a01e49d7fba3408cf8b0879ea071d, type: 3}
+  audioDropSccess2: {fileID: 8300000, guid: da7f5cadb582c2143a6bda8009929a67, type: 3}
   audioDropFail: {fileID: 8300000, guid: bc926325d512d004d9eabc9fe099aa04, type: 3}
   audioCatchSuccess: {fileID: 8300000, guid: dd05a604edf865d46bf6f3e789b8324a, type: 3}
   audioCatchCharacter: {fileID: 8300000, guid: dc6a2b61be31c534fa065bda8d91315a, type: 3}

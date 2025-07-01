@@ -11,7 +11,7 @@ namespace CGJ2025.System.Interact
     public class InteractSystem : MonoBehaviour
     {
 
-        private bool _isDraging;
+        public bool _isDraging { get; private set; }
         
         public MouseManager mouseManager;
         public TimerManager timerManager;

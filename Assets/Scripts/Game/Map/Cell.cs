@@ -115,7 +115,7 @@ namespace CGJ2025.SceneCell
 
 		public void OnCharacterInCell(ICharacter character)
 		{
-			if(cellData.cellType == CellType.Empty && sprite.enabled == false)
+			if(cellData.cellType != CellType.NotInteract && sprite.enabled == false)
 			{
 				sprite.enabled = true;
 			}
@@ -146,7 +146,7 @@ namespace CGJ2025.SceneCell
 
 		public void RefreshCell()
 		{
-			if(cellData.cellType == CellType.Empty && sprite.enabled == true)
+			if(cellData.cellType != CellType.NotInteract && sprite.enabled == true)
 			{
 				sprite.enabled = false;
 			}

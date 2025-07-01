@@ -35,7 +35,10 @@ namespace CGJ2025.Character
 		public AudioClip audioFind;
 		public AudioClip audioFind2;
 		public AudioClip audioCatch;
+		
+		public AudioClip audioCatch2;
 		public AudioClip audioDropSccess;
+		public AudioClip audioDropSccess2;
 		public AudioClip audioDropFail;
 
 		public AudioClip audioCatchSuccess;
@@ -97,7 +100,10 @@ namespace CGJ2025.Character
 			// 拾取成功 挣扎
 			skeletonMchine.RegisterState(SkeletonLayer.Base, "Snatch_in")
 			.OnAnimationStart((_, _) => {
-				PlayAudio(audioCatch);
+				var random = UnityEngine.Random.Range(0, 2);
+				if (random == 0) PlayAudio(audioCatch); 
+				else PlayAudio(audioCatch2);
+
 				Cursor.visible = false;
 			})
 			.AddAnoTransition("Snatch", () => true, true)
@@ -117,7 +123,12 @@ namespace CGJ2025.Character
 			.OnAnimationStart((_, _) => 
 			{
 				Cursor.visible = true;
-				PlayAudio(audioDropSccess);
+
+				var random = UnityEngine.Random.Range(0, 2);
+				if (random == 0) PlayAudio(audioDropSccess); 
+				else PlayAudio(audioDropSccess2);
+
+
 				gameSortLayer.SortLayerName = LAYER_INTERACTABLE;
 			})
 			.OnAnimationEnd((_, _) => 
