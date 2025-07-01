@@ -160,7 +160,7 @@ namespace CGJ2025.Character
 			.OnAnimationStart((_, _) => 
 			{
 				Cursor.visible = true;
-
+				IsDestroy = true;
 				var random = UnityEngine.Random.Range(0, 3);
 				if (random == 0) PlayAudio(audioDropSccess);
 				if (random == 1) PlayAudio(audioDropSccess2);
@@ -258,7 +258,7 @@ namespace CGJ2025.Character
 
 		protected override bool DragCondition(InteractContext context) 
 		{
-			return _canCatch == true && IsGrassRepel;
+			return _canCatch == true && IsGrassRepel && state != State.DropSuccess;
 		}
 
 		public void DropSuccess(Cell dropCell)

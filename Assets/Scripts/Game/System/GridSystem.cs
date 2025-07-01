@@ -172,7 +172,6 @@ namespace CGJ2025.System.Grid
 			// }
 
 			//	All Grass Exist but headstone
-			Debug.Log(index);
 			for (int i = 0; i < row; i++)
 			{
 				for (int j = 0; j < col; j++)
@@ -180,7 +179,6 @@ namespace CGJ2025.System.Grid
 					if (i == HeadStone.x && j == HeadStone.y) continue;
 					if (!grassExsit[i, j])
 					{
-						Debug.Log(i + " " + j + " still empty");
 						return false;
 					}
 				}

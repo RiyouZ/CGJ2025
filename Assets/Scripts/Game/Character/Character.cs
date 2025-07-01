@@ -50,7 +50,10 @@ namespace CGJ2025.Character
 		private int _skinIndex;
 	
 		public GameObject CharacteObject => this.gameObject;
-		public GameObject InteractObject => this.gameObject;
+		public bool IsDestroy
+		{
+			protected set; get;
+		}
 
 		public virtual bool IsGrassRepel
 		{

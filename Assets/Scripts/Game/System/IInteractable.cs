@@ -6,7 +6,7 @@ namespace CGJ2025.System.Interact
 {
 	public interface IInteractable
 	{
-		public GameObject InteractObject{get;}
+		public bool IsDestroy {get;}
 		public void OnDragBegin (InteractContext context);
 		public void OnDragUpdate (InteractContext context);
 		public void OnDragEnd (InteractContext context);

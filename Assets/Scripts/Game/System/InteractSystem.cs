@@ -44,6 +44,11 @@ namespace CGJ2025.System.Interact
 
         public void DragUpdate()
         {
+            if(currentInteractObj != null && currentInteractObj.IsDestroy)
+            {
+                currentInteractObj = null;
+            }
+
             if(_mainCamera == null)
             {
                 _mainCamera = Camera.main;
@@ -53,8 +58,14 @@ namespace CGJ2025.System.Interact
 
             if(Input.GetMouseButtonDown(0) && CurrentObject != null)
             {
+                // 已经有抓过的
+                if(currentInteractObj != null)
+                {
+                    return;
+                }
+
                 currentInteractObj = CurrentObject.GetComponent<IInteractable>();
-                if(currentInteractObj != null || currentInteractObj.InteractObject!= null)
+                if(currentInteractObj != null && !currentInteractObj.IsDestroy)
                 {
                     _context.mousePosition = mouseManager.WorldPosition;
                     _context.dragTime = _dragTime;
@@ -62,10 +73,10 @@ namespace CGJ2025.System.Interact
                     _isDraging = true;
                 }
             }
-
-            if(_isDraging && Input.GetMouseButtonUp(0))
+            else if(_isDraging && Input.GetMouseButtonUp(0))
             {
-                if(currentInteractObj != null || currentInteractObj.InteractObject!= null)
+                _isDraging = false;
+                if(currentInteractObj != null && !currentInteractObj.IsDestroy)
                 {
                     _context.mousePosition = mouseManager.WorldPosition;
                     _dragTime += Time.deltaTime;
@@ -74,17 +85,18 @@ namespace CGJ2025.System.Interact
                     _dragTime = 0;
                     currentInteractObj = null;
                 }
-                _isDraging = false;
-            }else if(_isDraging && currentInteractObj != null)
+            }
+            else if(_isDraging && currentInteractObj != null)
             {
                 _context.mousePosition = mouseManager.WorldPosition;
                 _dragTime += Time.deltaTime;
                 _context.dragTime = _dragTime;
 
-                if(currentInteractObj != null || currentInteractObj.InteractObject!= null)
+                if(currentInteractObj.IsDestroy)
                 {
-                    currentInteractObj.OnDragUpdate(_context);
+                    return;
                 }
+                currentInteractObj.OnDragUpdate(_context);
             }
         }
     }

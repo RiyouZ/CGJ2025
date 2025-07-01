@@ -123,7 +123,7 @@ namespace CGJ2025.Character
 			.OnAnimationStart((_, _) => 
 			{
 				Cursor.visible = true;
-
+				IsDestroy = true;
 				var random = UnityEngine.Random.Range(0, 2);
 				if (random == 0) PlayAudio(audioDropSccess); 
 				else PlayAudio(audioDropSccess2);
@@ -178,6 +178,11 @@ namespace CGJ2025.Character
 		private bool _isMouseHold = false;
 		public override void OnDragBegin(InteractContext context)
 		{
+			if(state == State.DropSuccess)
+			{
+				return;
+			}
+
 			_isMouseHold = true;
 			if(state == State.DropFail)
 			{
