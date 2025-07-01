@@ -280,7 +280,7 @@ MonoBehaviour:
   gameSortLayer: {fileID: 0}
   state: 0
   needCatchTime: 1
-  decreaseGenValue: 0
+  increaseDoubleGenValue: 0.05
   _mouseManager: {fileID: 0}
   audioFind: {fileID: 8300000, guid: 121d32d466371de45959f788fede0f5c, type: 3}
   audioFind2: {fileID: 8300000, guid: 297dec079e4c741429810987d595df5e, type: 3}

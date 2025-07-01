@@ -27,7 +27,7 @@ namespace CGJ2025.System.Grid
 		private static float Width;
 		private static float Height;
 
-		public static float GenerateTime = 5;
+		public static float GenerateTime = 5f;
 		public static float doubleGenrate = 0.01f;
 
 		private static int row;
@@ -89,6 +89,7 @@ namespace CGJ2025.System.Grid
 			Height = Tilemap.cellBounds.size.y;
 
 			groundObj[0, 0].cellData.cellType = CellType.Grass;
+			grassExsit[0, 0] = true;
 			groundObj[HeadStone.x, HeadStone.y].cellData.cellType = CellType.NotInteract;
 
 			grassCellList.Add(Index(0, 0));
@@ -157,17 +158,32 @@ namespace CGJ2025.System.Grid
 			}
 
 			grassExsit[index.x, index.y] = true;
-			for(int i = 0; i < 8; i++)
+			// for(int i = 0; i < 8; i++)
+			// {
+			// 	int dx = HeadStone.x + RangeDir[0, i];
+			// 	int dy = HeadStone.y + RangeDir[1, i];
+
+			// 	if(dx < 0 || dx >= row ||dy < 0 || dy >= col)
+			// 	{
+			// 		continue;
+			// 	}
+
+			// 	if(!grassExsit[dx, dy]) return false;;
+			// }
+
+			//	All Grass Exist but headstone
+			Debug.Log(index);
+			for (int i = 0; i < row; i++)
 			{
-				int dx = HeadStone.x + RangeDir[0, i];
-				int dy = HeadStone.y + RangeDir[1, i];
-
-				if(dx < 0 || dx >= row ||dy < 0 || dy >= col)
+				for (int j = 0; j < col; j++)
 				{
-					continue;
+					if (i == HeadStone.x && j == HeadStone.y) continue;
+					if (!grassExsit[i, j])
+					{
+						Debug.Log(i + " " + j + " still empty");
+						return false;
+					}
 				}
-
-				if(!grassExsit[dx, dy]) return false;;
 			}
 			return true;
 		}

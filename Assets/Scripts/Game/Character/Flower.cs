@@ -28,7 +28,7 @@ namespace CGJ2025.Character
 		public State state = State.Start;
 
 		public float needCatchTime;
-		public float decreaseGenValue;
+		public float increaseDoubleGenValue;
 
 		[SerializeField] private MouseManager _mouseManager;
 
@@ -165,7 +165,7 @@ namespace CGJ2025.Character
 
 		protected override void DropedEffect()
 		{
-			GridSystem.doubleGenrate = Mathf.Max(1, GridSystem.doubleGenrate + decreaseGenValue);
+			GridSystem.doubleGenrate = Mathf.Max(0.8f, GridSystem.doubleGenrate + increaseDoubleGenValue);
 		}
 
 		protected override void OnCharacterDroped()

@@ -123,6 +123,11 @@ namespace CGJ2025.SceneCell
 
 		public void OnCharacterDroped(ICharacter character, Action onDroped)
 		{
+			if(cellData.cellType == CellType.Empty)
+			{
+				CreateGrass();
+				return;
+			}
 			if(cellData.cellType != CellType.NotInteract)
 			{
 				if(character is Rabbit)
@@ -135,12 +140,6 @@ namespace CGJ2025.SceneCell
 				}
 			}
 			
-			if(cellData.cellType == CellType.Empty)
-			{
-				CreateGrass();
-				return;
-			}
-
 			onDroped?.Invoke();
 		}
 
