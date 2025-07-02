@@ -18,8 +18,10 @@ namespace CGJ2025.UI
 
         public void UpdateData(int rabbitCnt, int flowerCnt)
         {
-            txtRabbit.text = $"兔精灵 x {rabbitCnt}  减少孕育时间";
-            txtFlower.text = $"雏菊精灵 x {flowerCnt}  增加花园同时孕育两个\n小精灵的概率";
+            //txtRabbit.text = $"兔精灵 x {rabbitCnt}  减少孕育时间";
+            txtRabbit.text = $"Bunny Elven x {rabbitCnt}  Reduces garden nurturing time";
+            //txtFlower.text = $"雏菊精灵 x {flowerCnt}  增加花园同时孕育两个\n小精灵的概率";
+            txtFlower.text = $"Daisy Elven x {flowerCnt}  Increases chance of nurturing two Elvens at once";
         }
         
     }
