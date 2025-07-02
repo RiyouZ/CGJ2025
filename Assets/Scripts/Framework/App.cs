@@ -46,7 +46,7 @@ namespace RuGameFramework
 		public Transform taskCanvas;
 		public Camera uiCamera;
 
-		private static readonly Vector3 OutScreen = new Vector3(Screen.width * 2, Screen.height * 2, 0);
+		private static readonly Vector3 OutScreen = new Vector3(Screen.width * 5, Screen.height * 5, 0);
 
 		void Awake ()
 		{
